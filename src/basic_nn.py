@@ -7,19 +7,21 @@ from tensorflow.keras import losses
 from tensorflow.keras import metrics
 import numpy as np
 
-input_dim = 100
-output_dim = 10
-group_size = int(input_dim / output_dim)
+# the input values are random so set the seed for reproducibility
+tf.random.set_seed(23)
+np.random.seed(23)
 
 # =========== Overview
 # We're going to train a very basic NN to predict a predict a pattern where every group of 10 inputs gets turned into one number by summing
 # so in the case we start with 100 inputs then the 1st label is the sum of inputs 1-10, the 2nd is the sum of 11-20 etc.
 
+input_dim = 100
+output_dim = 10
+group_size = int(input_dim / output_dim)
+
+
 # =========== Inputs
 # first we create the dataset
-
-# the input values are random so set the seed for reproducibility
-np.random.seed(23)
 
 # Create a function to sum the groups https://stackoverflow.com/questions/35215161/most-efficient-way-to-map-function-over-numpy-array
 sum_groups = lambda row: np.array([sum(group) for group in np.split(row, group_size)])
@@ -49,3 +51,30 @@ eval_labels = np.array([sum_groups(row) for row in eval_data]) # the labels are 
 # evaluation
 loss_and_metrics = model.evaluate(eval_data, eval_labels, batch_size=128)
 print(loss_and_metrics)
+
+# =========== Prediction
+predict_data = np.array([
+         [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,],
+         [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+          1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,]
+        ])
+
+predictions = model.predict(predict_data)
+print(predictions)
