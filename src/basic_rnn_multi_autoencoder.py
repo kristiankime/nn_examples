@@ -29,7 +29,7 @@ np.random.seed(23)
 training_size = 8000
 eval_size = 1000
 
-max_timesteps = 2
+max_timesteps = 8
 feature_num = 3
 
 
@@ -38,13 +38,8 @@ def series(timesteps, feature_num):
     return np.random.random((timesteps, feature_num))
 
 
-# https://stackoverflow.com/questions/13567345/how-to-calculate-the-sum-of-all-columns-of-a-2d-numpy-array-efficiently
-def sum_series_features(series):
-    return series.sum(axis=0)
-
-
 def labels_from_data(data):
-    return np.array([sum_series_features(series) for series in data]) # the labels are the grouped sums
+    return data # the identity function
 
 
 # =========== Inputs
@@ -65,7 +60,7 @@ model.add(layers.Input(shape=(max_timesteps, feature_num)))
 # Because return_sequences=False, it will output 2 timesteps, each
 # with 4 features. So the output shape (excluding batch size) is
 # (2, 3), which matches the shape of each data point in data_y above.
-model.add(layers.LSTM(feature_num, activation=None, return_sequences=False))
+model.add(layers.LSTM(feature_num, activation=None, return_sequences=True))
 
 # =========== Model Prep
 # https://www.tensorflow.org/guide/keras/overview#train_and_evaluate
@@ -83,37 +78,28 @@ loss_and_metrics = model.evaluate(eval_data, eval_labels, batch_size=128)
 print(loss_and_metrics)
 
 # =========== Prediction
-# predict_data = np.array([
-#     # Series 1
-#     [
-#         # Input features at timestep 1
-#         [.10, .20, .40],
-#         # Input features at timestep 2
-#         [.10, .20, .40]
-#     ],
-#     # Series 2
-#     [
-#         # Features at timestep 1
-#         [.15, .25, .45],
-#         # Features at timestep 2
-#         [.15, .25, .45]
-#     ]
-# ])
-
 predict_data = np.array([
     # Series 1
     [
-        # Input features at timestep 1
-        [1.0, .01, .50],
-        # Input features at timestep 2
-        [1.0, .01, .50]
+        [.05, .25, .45], # Features at timestep 1
+        [.15, .35, .55], # Features at timestep 2
+        [.40, .50, .60], # Features at timestep 3
+        [.25, .50, .75], # Features at timestep 4
+        [.05, .25, .45], # Features at timestep 5
+        [.15, .35, .55], # Features at timestep 6
+        [.40, .50, .60], # Features at timestep 7
+        [.25, .50, .75], # Features at timestep 8
     ],
     # Series 2
     [
-        # Features at timestep 1
-        [.05, .25, .45],
-        # Features at timestep 2
-        [.15, .35, .55]
+        [.05, .25, .45], # Features at timestep 1
+        [.15, .35, .55], # Features at timestep 2
+        [.40, .50, .60], # Features at timestep 3
+        [.25, .50, .75], # Features at timestep 4
+        [.05, .25, .45], # Features at timestep 5
+        [.15, .35, .55], # Features at timestep 6
+        [.40, .50, .60], # Features at timestep 7
+        [.25, .50, .75], # Features at timestep 8
     ]
 ])
 

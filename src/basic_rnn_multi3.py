@@ -26,10 +26,10 @@ tf.random.set_seed(23)
 np.random.seed(23)
 
 # =========== Overview
-training_size = 8000
+training_size = 20000
 eval_size = 1000
 
-max_timesteps = 2
+max_timesteps = 8
 feature_num = 3
 
 
@@ -72,7 +72,7 @@ model.add(layers.LSTM(feature_num, activation=None, return_sequences=False))
 model.compile(loss=losses.MSE, optimizer=optimizers.SGD(), metrics=[metrics.MSE])
 
 # =========== Model Training
-model.fit(train_data, train_labels, epochs=50)
+model.fit(train_data, train_labels, epochs=30)
 
 # =========== Model Evaluation
 # eval data
@@ -83,37 +83,28 @@ loss_and_metrics = model.evaluate(eval_data, eval_labels, batch_size=128)
 print(loss_and_metrics)
 
 # =========== Prediction
-# predict_data = np.array([
-#     # Series 1
-#     [
-#         # Input features at timestep 1
-#         [.10, .20, .40],
-#         # Input features at timestep 2
-#         [.10, .20, .40]
-#     ],
-#     # Series 2
-#     [
-#         # Features at timestep 1
-#         [.15, .25, .45],
-#         # Features at timestep 2
-#         [.15, .25, .45]
-#     ]
-# ])
-
 predict_data = np.array([
     # Series 1
     [
-        # Input features at timestep 1
-        [1.0, .01, .50],
-        # Input features at timestep 2
-        [1.0, .01, .50]
+        [1.0, .01, .50],  # Features at timestep 1
+        [1.0, .01, .50],  # Features at timestep 2
+        [1.0, .01, .50],  # Features at timestep 3
+        [1.0, .01, .50],  # Features at timestep 4
+        [1.0, .01, .50],  # Features at timestep 5
+        [1.0, .01, .50],  # Features at timestep 6
+        [1.0, .01, .50],  # Features at timestep 7
+        [1.0, .01, .50],  # Features at timestep 8
     ],
     # Series 2
     [
-        # Features at timestep 1
-        [.05, .25, .45],
-        # Features at timestep 2
-        [.15, .35, .55]
+        [.05, .25, .45],  # Features at timestep 1
+        [.05, .25, .45],  # Features at timestep 2
+        [.05, .25, .45],  # Features at timestep 3
+        [.05, .25, .45],  # Features at timestep 4
+        [.05, .25, .45],  # Features at timestep 5
+        [.05, .25, .45],  # Features at timestep 6
+        [.05, .25, .45],  # Features at timestep 7
+        [.05, .25, .45],  # Features at timestep 8
     ]
 ])
 
