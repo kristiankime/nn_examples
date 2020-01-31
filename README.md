@@ -15,8 +15,9 @@ virtualenv --system-site-packages -p python ./venv
 source ./venv/bin/activate
 
 pip install --upgrade pip
-
 pip install --upgrade tensorflow
+pip install pydot
+pip install graphviz
 
 deactivate
 
