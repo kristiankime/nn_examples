@@ -4,6 +4,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 import tensorflow as tf
 import numpy as np
+import datetime
 
 from numpy import array
 from tensorflow.keras.models import Sequential
@@ -20,7 +21,7 @@ from logs import stdout_reset
 # cwd = os.getcwd()
 # print(f"cwd={cwd}")
 
-
+start = datetime.datetime.now()
 # the input values are random so set the seed for reproducibility
 tf.random.set_seed(23)
 np.random.seed(23)
@@ -29,7 +30,7 @@ np.random.seed(23)
 # lstm autoencoder predict sequence
 samples = 4000
 # timesteps = 243 # 243 possible
-timesteps = 10
+timesteps = 40
 # feature_num = 29 # <correct or not> + <28 features>
 feature_num = 29 # <correct or not> + <28 features>
 
@@ -107,6 +108,13 @@ print(yhat_round)
 compare = np.around(np.subtract(pred_seq_in, yhat_round), decimals=1)
 print("compare")
 print(compare)
+
+end = datetime.datetime.now()
+difference = end - start
+
+print(f'start      {start}')
+print(f'end        {end}')
+print(f'difference {difference}')
 
 stdout_reset()
 
