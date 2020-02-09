@@ -30,7 +30,7 @@ np.random.seed(23)
 # lstm autoencoder predict sequence
 samples = 4000
 # timesteps = 243 # 243 possible
-timesteps = 40
+timesteps = 20
 # feature_num = 29 # <correct or not> + <28 features>
 feature_num = 29 # <correct or not> + <28 features>
 
@@ -49,13 +49,20 @@ stdout_add_file(os.path.join(run_dir, 'log.txt'))
 # =========== sample data generation functions
 def history(max_timesteps, feature_num):
     history_length = np.random.random_integers(low=1, high=max_timesteps)
+    blank_history = max_timesteps - history_length
     filled_shape = (history_length, feature_num)
     padded_shape = (max_timesteps, feature_num)
     filled_history = np.random.random_integers(low=0, high=1, size=filled_shape).astype(np.float32)
 
     # https://stackoverflow.com/questions/35751306/python-how-to-pad-numpy-array-with-zeros
     padded_history = np.zeros(padded_shape).astype(np.float32)
-    padded_history[:filled_shape[0],:filled_shape[1]] = filled_history
+
+    # this fills in the first elements where are start of the history
+    # padded_history[:filled_shape[0],:filled_shape[1]] = filled_history
+
+    # we want to fill in the last elements
+    padded_history[blank_history:,:filled_shape[1]] = filled_history
+
     return padded_history
 
 
