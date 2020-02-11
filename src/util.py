@@ -5,6 +5,20 @@ import pandas as pd
 from numpy import array
 
 
+def create_snapshots(history, length=243, groupby=['anon_id']):
+    snapshot_history = []
+
+    def group_history(data):
+        tmp = data.iloc[:length, :]
+        # print("========= tmp =========")
+        # print(tmp)
+        snapshot_history.extend(history_snapshots(length, tmp, groupby))
+        return data
+
+    history.groupby(groupby).apply(group_history)
+    return array(snapshot_history)
+
+
 def history_snapshots(desired_timesteps, user_history, drop=[]):
     # print('history_snapshots')
     # print(user_history)
