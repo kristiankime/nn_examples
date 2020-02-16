@@ -7,6 +7,7 @@ from numpy import array
 from numpy.testing import assert_array_equal
 
 from util import padded_history, history_snapshots, create_snapshots
+from util import write_numpy_3d_array_as_txt, read_numpy_3d_array_from_txt
 
 class TestStringMethods(unittest.TestCase):
 
@@ -154,3 +155,17 @@ class TestStringMethods(unittest.TestCase):
         expected = array([[0., 1., 0.,],
                           [0., 0., 1.,],], dtype=np.float32)
         assert_array_equal(result, expected)
+
+    def test_write_numpy_3d_array_as_txt_and_read_numpy_3d_array_from_txt(self):
+        data = array([[[0., 0., 0.,],
+                       [1., 0., 0.,],],
+                      [[1., 0., 0.,],
+                       [0., 1., 0.,],],
+                      [[0., 1., 0.,],
+                       [0., 0., 1.,],],
+                      ], dtype=np.float32)
+
+        write_numpy_3d_array_as_txt(data, '../test_data/test_write_numpy_3d_array_as_txt_and_read_numpy_3d_array_from_txt.txt', fmt='%.1e')
+
+        result = read_numpy_3d_array_from_txt('../test_data/test_write_numpy_3d_array_as_txt_and_read_numpy_3d_array_from_txt.txt')
+        assert_array_equal(result, data)
