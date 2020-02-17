@@ -2,6 +2,7 @@
 .idea
 venv
 runs
+runs_*
 outputs
 data
 test_data

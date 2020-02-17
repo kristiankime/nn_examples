@@ -1,35 +1,35 @@
 import os
 import numpy as np
 import pandas as pd
+import random
 
-from numpy import array
-from util import create_snapshots, write_numpy_3d_array_as_txt
-from data import question_history
+# Load the user history
+answer_history_base = pd.io.parsers.read_csv(os.path.join('outputs', 'answers_history.csv'))
 
+# find all the users
+users = answer_history_base['anon_id'].unique()
 
-user_size = 10
-history_length = 20
+# split into train, validate test
+random.shuffle(users)
+num_users = users.size
+index_train = int(num_users * .9)
+index_validate = int(num_users * .95)
+index_test = num_users
+users_train = users[:index_train]
+users_validate = users[index_train:index_validate]
+users_test = users[index_validate:index_test]
 
-snapshots = question_history(os.path.join('outputs', 'answers_history.csv'), user_size, history_length)
-# snapshots = create_snapshots(history, length=history_length)
-write_numpy_3d_array_as_txt(snapshots, os.path.join('outputs' , f'snapshot_u{user_size}l{history_length}.txt'), fmt='%.1f')
+# record the actual users just in case
+np.savetxt(os.path.join('outputs', 'users_train.txt'), users_train, fmt='%d')
+np.savetxt(os.path.join('outputs', 'users_validate.txt'), users_validate, fmt='%d')
+np.savetxt(os.path.join('outputs', 'users_test.txt'), users_test, fmt='%d')
 
+# Save the filtered data files
+# df[df['A'].isin([3, 6])]
+answer_history_train = answer_history_base[answer_history_base['anon_id'].isin(users_train)]
+answer_history_validate = answer_history_base[answer_history_base['anon_id'].isin(users_validate)]
+answer_history_test = answer_history_base[answer_history_base['anon_id'].isin(users_test)]
 
-
-# answer_history_base = pd.io.parsers.read_csv(os.path.join('outputs' , 'answers_history.csv'))
-# answer_history_trim = answer_history_base.drop(columns=['question_id', 'timestamp'])
-# # answer_history_small = answer_history_trim.iloc[:1000,:]
-#
-# user_size = 100
-# history_length = 20
-#
-# users = answer_history_base['anon_id'].unique()
-# users_n = users[:user_size]
-#
-# answer_history_n = answer_history_trim[answer_history_trim.anon_id.isin(users_n)]
-#
-# answer_snapshots = create_snapshots(answer_history_n, length=20)
-#
-# np.set_printoptions(linewidth=200, threshold=21*20*29)
-# #np.set_printoptions()
-# print(answer_snapshots[:21])
+answer_history_train.to_csv(os.path.join('outputs' , 'answers_history_train.csv'), index=False)
+answer_history_validate.to_csv(os.path.join('outputs' , 'answers_history_validate.csv'), index=False)
+answer_history_test.to_csv(os.path.join('outputs' , 'answers_history_test.csv'), index=False)

@@ -75,9 +75,6 @@ def write_numpy_3d_array_as_txt(data, file='test.txt', fmt='%.18e', delimiter=' 
 
 
 def read_numpy_3d_array_from_txt(file='test.txt'):
-    d1 = None
-    d2 = None
-    d3 = None
     with open(file, 'r') as f:
         first_line = f.readline()
         p = re.compile('# Array shape: \((\d+), (\d+), (\d+)\)')

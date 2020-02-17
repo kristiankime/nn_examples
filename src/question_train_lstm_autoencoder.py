@@ -16,9 +16,9 @@ from tensorflow.keras.layers import TimeDistributed
 from tensorflow.keras.utils import plot_model
 from tensorflow.keras.optimizers import Adam
 
-from logs import stdout_add_file
-from logs import stdout_reset
-from util import create_snapshots
+from logs import stdout_add_file, stdout_reset
+from util import create_snapshots, read_numpy_3d_array_from_txt
+from models import lstm_autoencoder
 
 start = datetime.datetime.now()
 # set the seed for reproducibility
@@ -27,52 +27,36 @@ np.random.seed(23)
 
 # =========== Overview
 # parameterization
-user_size = 100
-history_length = 20 # 243 possible
+user_size = 500 # 3285
+history_length = 20 # 243 possible but can't do all of them sometimes see this https://github.com/keras-team/keras/issues/4563 and sometimes the results are just bad
 feature_num = 29 # <correct or not> + <28 features>
 
-lstm_layer_size = 300
-epochs = 200
+lstm_layer_size = 50
+epochs = 100
 
 # output location
-run_dir = os.path.join('runs', f'run_u{user_size}e{epochs}_t{history_length}f{feature_num}_l{lstm_layer_size}')
+run_dir = os.path.join('runs', f'run_t{history_length}f{feature_num}l{lstm_layer_size}_u{user_size}e{epochs}')
 
 if not os.path.exists(run_dir):
     os.makedirs(run_dir)
 
+# Setup some printing magic
 # https://stackoverflow.com/questions/11325019/how-to-output-to-the-console-and-file
 # https://stackoverflow.com/questions/7152762/how-to-redirect-print-output-to-a-file-using-python?noredirect=1&lq=1
 stdout_add_file(os.path.join(run_dir, 'log.txt'))
+# we want to see everything in the prints
+np.set_printoptions(linewidth=200, threshold=21*20*29) # unset with np.set_printoptions()
 
 # =========== data
-answer_history_base = pd.io.parsers.read_csv(os.path.join('outputs' , 'answers_history.csv'))
-answer_history_trim = answer_history_base.drop(columns=['question_id', 'timestamp'])
-
-users = answer_history_base['anon_id'].unique()
-users_n = users[:user_size]
-answer_history_n = answer_history_trim[answer_history_trim.anon_id.isin(users_n)]
-
-answer_snapshots = create_snapshots(answer_history_n, length=history_length)
-
-print("answer_snapshots")
-print(answer_snapshots)
+answer_snapshots = read_numpy_3d_array_from_txt(os.path.join('outputs' , f'snapshot_u{user_size}l{history_length}.txt'))
 
 # input and outputs
 seq_in = answer_snapshots
 # we're using an auto encoder so the input is the output
 seq_out = seq_in
 
-
-# https://github.com/keras-team/keras/issues/4563
-
-
 # define model
-model = Sequential()
-model.add(LSTM(lstm_layer_size, activation='relu', input_shape=(history_length, feature_num))) # https://stackoverflow.com/questions/58086601/xavier-initialization-in-tensorflow-2-0
-model.add(RepeatVector(history_length))
-model.add(LSTM(lstm_layer_size, activation='relu', return_sequences=True))
-model.add(TimeDistributed(Dense(feature_num)))
-
+model = lstm_autoencoder(lstm_layer_size, history_length, feature_num)
 optimizer = Adam(learning_rate=0.001, epsilon=1e-7) # https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/Adam
 model.compile(optimizer=optimizer, loss='mse')
 
@@ -80,12 +64,8 @@ model.compile(optimizer=optimizer, loss='mse')
 model.fit(seq_in, seq_out, epochs=epochs, verbose=2)
 
 
-# we want to see everything in the prints
-np.set_printoptions(linewidth=200, threshold=21*20*29)
-# np.set_printoptions()
 # print(answer_snapshots[:21])
-
-pred_seq_in = answer_snapshots[:1]
+pred_seq_in = answer_snapshots[9:10]
 print("pred_seq_in")
 print(pred_seq_in)
 yhat = model.predict(pred_seq_in, verbose=0)
