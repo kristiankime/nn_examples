@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 import random
 
+np.random.seed(23)  # pandas uses numpy
+
 # Load the user history
 answer_history_base = pd.io.parsers.read_csv(os.path.join('outputs', 'answers_history.csv'))
 

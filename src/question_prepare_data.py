@@ -40,4 +40,4 @@ answers_history.reset_index(level=0, inplace=True)
 answers_history = answers_history.sort_values(by=['anon_id', 'timestamp'], ascending=[True, True])
 # answers_history.loc[:,['question_id','anon_id','timestamp']]
 
-answers_history.to_csv(os.path.join('outputs' , 'answers_history.csv'), index=False)
+answers_history.to_csv(os.path.join('outputs', 'answers_history.csv'), index=False)

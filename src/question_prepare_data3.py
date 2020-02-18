@@ -6,30 +6,13 @@ from numpy import array
 from util import create_snapshots, write_numpy_3d_array_as_txt
 from data import question_history
 
+history_length = 25
 
-user_size = 500
-history_length = 20
+snapshots_train = question_history(os.path.join('outputs', 'answers_history_train.csv'), user_size=None, history_length=history_length)
+write_numpy_3d_array_as_txt(snapshots_train, os.path.join('outputs' , f'snapshot_train_l{history_length}.txt'), fmt='%.1f')
 
-snapshots = question_history(os.path.join('outputs', 'answers_history.csv'), user_size, history_length)
-# snapshots = create_snapshots(history, length=history_length)
-write_numpy_3d_array_as_txt(snapshots, os.path.join('outputs' , f'snapshot_u{user_size}l{history_length}.txt'), fmt='%.1f')
+snapshots_validate = question_history(os.path.join('outputs', 'answers_history_validate.csv'), user_size=None, history_length=history_length)
+write_numpy_3d_array_as_txt(snapshots_validate, os.path.join('outputs' , f'snapshot_validate_l{history_length}.txt'), fmt='%.1f')
 
-
-
-# answer_history_base = pd.io.parsers.read_csv(os.path.join('outputs' , 'answers_history.csv'))
-# answer_history_trim = answer_history_base.drop(columns=['question_id', 'timestamp'])
-# # answer_history_small = answer_history_trim.iloc[:1000,:]
-#
-# user_size = 100
-# history_length = 20
-#
-# users = answer_history_base['anon_id'].unique()
-# users_n = users[:user_size]
-#
-# answer_history_n = answer_history_trim[answer_history_trim.anon_id.isin(users_n)]
-#
-# answer_snapshots = create_snapshots(answer_history_n, length=20)
-#
-# np.set_printoptions(linewidth=200, threshold=21*20*29)
-# #np.set_printoptions()
-# print(answer_snapshots[:21])
+snapshots_test = question_history(os.path.join('outputs', 'answers_history_test.csv'), user_size=None, history_length=history_length)
+write_numpy_3d_array_as_txt(snapshots_test, os.path.join('outputs' , f'snapshot_test_l{history_length}.txt'), fmt='%.1f')
