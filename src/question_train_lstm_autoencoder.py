@@ -17,7 +17,7 @@ from tensorflow.keras.utils import plot_model
 from tensorflow.keras.optimizers import Adam
 
 from logs import stdout_add_file, stdout_reset
-from util import create_snapshots, read_numpy_3d_array_from_txt
+from util import group_snapshots, read_numpy_3d_array_from_txt
 from models import lstm_autoencoder
 
 start = datetime.datetime.now()
@@ -32,7 +32,7 @@ np.random.seed(23)  # pandas uses numpy
 history_length = 25 # 243 possible but can't do all of them sometimes see this https://github.com/keras-team/keras/issues/4563 and sometimes the results are just bad
 feature_num = 29 # <correct or not> + <28 features>
 
-lstm_layer_size = 150
+lstm_layer_size = 75
 epochs = 100
 
 # output location

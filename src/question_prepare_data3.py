@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 from numpy import array
-from util import create_snapshots, write_numpy_3d_array_as_txt
+from util import group_snapshots, write_numpy_3d_array_as_txt
 from data import question_history
 
 history_length = 25

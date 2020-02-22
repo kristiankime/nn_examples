@@ -6,38 +6,51 @@ import re
 from numpy import array
 
 
-def create_snapshots(history, length=243, groupby=['anon_id']):
+def group_snapshots(history, groupby=['anon_id'], group_slice=slice(None, None), snapshot_length=None, skip_zeroes=False):
+    print("========= history =========")
+    print(history)
     snapshot_history = []
 
     def group_history(data):
-        tmp = data.iloc[:length, :]
-        # print("========= tmp =========")
-        # print(tmp)
-        snapshot_history.extend(history_snapshots(length, tmp, groupby))
+        tmp = data.iloc[group_slice, :]
+
+        block = history_snapshots(tmp.drop(columns=groupby), snapshot_length)
+
+        # # if not (skip_zeroes and np.isin(block, 0.0).all()):
+        # #     snapshot_history.extend(block)
+        snapshot_history.extend(block)
         return data
 
     history.groupby(groupby).apply(group_history)
     return array(snapshot_history)
 
 
-def history_snapshots(desired_timesteps, user_history, drop=[]):
-    # print('history_snapshots')
-    # print(user_history)
-    history = user_history.drop(columns=drop)
-
+def history_snapshots(history, desired_timesteps=None, skip_zeroes=False):
     snapshots = []
     num_events, _ = history.shape
+
+    # desired_timesteps defaults to the overall number of events
+    if desired_timesteps is None:
+        desired_timesteps = num_events
+
     for i in range(1, num_events+1):
-        # print(str(i) + ' of ' + str(num_events))
         history_slice = history.iloc[:i, :]
-        # print(history_slice)
-        snapshots.append(padded_history(desired_timesteps, history_slice))
-    # print(snapshots)
+        history_slice_padded = padded_history(history_slice, desired_timesteps)
+
+        if skip_zeroes and np.isin(history_slice_padded, 0.0).all():
+            pass # Here we want to skill all 0 entries so just don't add them
+        else:
+            snapshots.append(history_slice_padded)
+
     return array(snapshots)
 
 
-def padded_history(desired_timesteps, history_slice):
+def padded_history(history_slice, desired_timesteps=None):
     history_timesteps, feature_num = history_slice.shape
+
+    # If desired_timesteps isn't specified use the history length
+    if desired_timesteps is None:
+        desired_timesteps = history_timesteps
 
     # depending on which is larger we need to restrict the size of the padded data or the history
     blank_history = max(desired_timesteps - history_timesteps, 0)

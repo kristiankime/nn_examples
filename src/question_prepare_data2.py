@@ -27,7 +27,6 @@ np.savetxt(os.path.join('outputs', 'users_validate.txt'), users_validate, fmt='%
 np.savetxt(os.path.join('outputs', 'users_test.txt'), users_test, fmt='%d')
 
 # Save the filtered data files
-# df[df['A'].isin([3, 6])]
 answer_history_train = answer_history_base[answer_history_base['anon_id'].isin(users_train)]
 answer_history_validate = answer_history_base[answer_history_base['anon_id'].isin(users_validate)]
 answer_history_test = answer_history_base[answer_history_base['anon_id'].isin(users_test)]

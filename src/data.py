@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from util import create_snapshots
+from util import group_snapshots
 
 # def question_snapshots(file=os.path.join('outputs' , 'answers_history.csv'), user_size=100, history_length=243):
 #     answer_history_base = pd.io.parsers.read_csv(os.path.join('outputs' , 'answers_history.csv'))
@@ -12,7 +12,7 @@ from util import create_snapshots
 #     users_n = users[:user_size]
 #     answer_history_n = answer_history_trim[answer_history_trim.anon_id.isin(users_n)]
 #
-#     answer_snapshots = create_snapshots(answer_history_n, length=history_length)
+#     answer_snapshots = group_snapshots(answer_history_n, length=history_length)
 
 
 def question_history(file=os.path.join('outputs', 'answers_history.csv'), user_size=None, history_length=243):
@@ -26,7 +26,7 @@ def question_history(file=os.path.join('outputs', 'answers_history.csv'), user_s
     else:
         answer_history_n = answer_history_trim
 
-    answer_snapshots = create_snapshots(answer_history_n, length=history_length)
+    answer_snapshots = group_snapshots(answer_history_n, length=history_length)
     return answer_snapshots
 
 

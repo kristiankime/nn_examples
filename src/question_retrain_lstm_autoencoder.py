@@ -18,7 +18,7 @@ from tensorflow.keras.utils import plot_model
 from tensorflow.keras.optimizers import Adam
 
 from logs import stdout_add_file, stdout_reset
-from util import create_snapshots, read_numpy_3d_array_from_txt
+from util import group_snapshots, read_numpy_3d_array_from_txt
 
 start = datetime.datetime.now()
 # set the seed for reproducibility
