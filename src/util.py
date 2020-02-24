@@ -2,22 +2,17 @@ import os
 import numpy as np
 import pandas as pd
 import re
+import itertools
 
 from numpy import array
 
 
-def group_snapshots(history, groupby=['anon_id'], group_slice=slice(None, None), snapshot_length=None, skip_zeroes=False):
-    print("========= history =========")
-    print(history)
+def group_snapshots(history, groupby, group_slice=slice(None, None), snapshot_length=None, ensure_zeroes=None):
     snapshot_history = []
 
     def group_history(data):
         tmp = data.iloc[group_slice, :]
-
-        block = history_snapshots(tmp.drop(columns=groupby), snapshot_length)
-
-        # # if not (skip_zeroes and np.isin(block, 0.0).all()):
-        # #     snapshot_history.extend(block)
+        block = history_snapshots(history=tmp.drop(columns=groupby), desired_timesteps=snapshot_length, ensure_zeroes=ensure_zeroes)
         snapshot_history.extend(block)
         return data
 
@@ -25,22 +20,36 @@ def group_snapshots(history, groupby=['anon_id'], group_slice=slice(None, None),
     return array(snapshot_history)
 
 
-def history_snapshots(history, desired_timesteps=None, skip_zeroes=False):
+def history_snapshots(history, desired_timesteps=None, ensure_zeroes=None):
     snapshots = []
-    num_events, _ = history.shape
+    num_events, feature_num = history.shape
 
-    # desired_timesteps defaults to the overall number of events
-    if desired_timesteps is None:
+    if desired_timesteps is None: # desired_timesteps defaults to the overall number of events
         desired_timesteps = num_events
 
+    zero_count = 0
     for i in range(1, num_events+1):
         history_slice = history.iloc[:i, :]
-        history_slice_padded = padded_history(history_slice, desired_timesteps)
+        history_slice_padded = padded_history(history_slice=history_slice, desired_timesteps=desired_timesteps)
 
-        if skip_zeroes and np.isin(history_slice_padded, 0.0).all():
-            pass # Here we want to skill all 0 entries so just don't add them
+        if ensure_zeroes is not None:
+            # If we have a desired amount make sure we keep track of the zero snapshot and add only the desired number
+            if np.isin(history_slice_padded, 0.0).all():
+                if zero_count < ensure_zeroes:
+                    snapshots.append(history_slice_padded)
+                zero_count = zero_count + 1
+            else:
+                snapshots.append(history_slice_padded)
         else:
+            # otherwise always add
             snapshots.append(history_slice_padded)
+
+    # If we don't have enough zero snapshots add them
+    if (ensure_zeroes is not None) and (zero_count < ensure_zeroes):
+        padded_shape = (desired_timesteps, feature_num)
+        zero_snapshot = np.zeros(padded_shape).astype(np.float32)
+        for _ in itertools.repeat(None, ensure_zeroes - zero_count):
+            snapshots.append(zero_snapshot)
 
     return array(snapshots)
 

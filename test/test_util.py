@@ -10,9 +10,14 @@ from util import padded_history, history_snapshots, group_snapshots
 from util import write_numpy_3d_array_as_txt, read_numpy_3d_array_from_txt
 
 
+# print("expected")
+# print(expected)
+# print("result")
+# print(result)
+
 class TestUtilMethods(unittest.TestCase):
     # ====================== group_snapshots ======================
-    def test_create_snapshots__default_creates_full_snapshots_for(self):
+    def test_create_snapshots__default_creates_full_snapshots_for_each_row(self):
         data = [[1, 1., 0., 0.,],
                 [1, 0., 1., 0.,],
                 [1, 0., 0., 1.,],
@@ -23,7 +28,6 @@ class TestUtilMethods(unittest.TestCase):
                 ]
         df = pd.DataFrame(data, columns = ['id', 'c1', 'c2', 'c3'])
 
-        # result = group_snapshots(df, groupby=['id'], group_length=3, snapshot_length=3)
         result = group_snapshots(df, groupby=['id'])
 
         expected = array([[[0., 0., 0.,],
@@ -53,11 +57,6 @@ class TestUtilMethods(unittest.TestCase):
                           ]
                          , dtype=np.float32)
 
-        # print("expected")
-        # print(expected)
-        # print("result")
-        # print(result)
-
         assert_array_equal(result, expected)
 
     def test_create_snapshots__restricted_group_length(self):
@@ -81,10 +80,6 @@ class TestUtilMethods(unittest.TestCase):
                            [1., 0., 0.,],
                            [0., 1., 0.,],],
 
-                          # [[1., 0., 0.,],
-                          #  [0., 1., 0.,],
-                          #  [0., 0., 1.,],],
-
 
                           [[0., 0., 0.,],
                            [0., 0., 0.,],
@@ -93,102 +88,10 @@ class TestUtilMethods(unittest.TestCase):
                           [[0., 0., 0.,],
                            [1., 1., 0.,],
                            [0., 1., 1.,],],
-
-                          # [[1., 1., 0.,],
-                          #  [0., 1., 1.,],
-                          #  [1., 0., 1.,],],
                           ]
                          , dtype=np.float32)
 
-        print("expected")
-        print(expected)
-        print("result")
-        print(result)
-
         assert_array_equal(result, expected)
-
-    #
-    # def test_create_snapshots__specifying_a_start_index_1_works(self):
-    #     data = [[1, 1., 0., 0.,],
-    #             [1, 0., 1., 0.,],
-    #             [1, 0., 0., 1.,],
-    #
-    #             [2, 1., 1., 0.,],
-    #             [2, 0., 1., 1.,],
-    #             [2, 1., 0., 1.,],
-    #             ]
-    #     df = pd.DataFrame(data, columns = ['id', 'c1', 'c2', 'c3'])
-    #
-    #     result = group_snapshots(df, length=3, groupby=['id'], start_indices=[1])
-    #
-    #     expected = array([[[0., 0., 0.,],
-    #                        [0., 0., 0.,],
-    #                        [0., 0., 0.,],],
-    #
-    #                       [[0., 0., 0.,],
-    #                        [0., 0., 0.,],
-    #                        [0., 1., 0.,],],
-    #
-    #                       [[0., 0., 0.,],
-    #                        [0., 1., 0.,],
-    #                        [0., 0., 1.,],],
-    #
-    #
-    #                       [[0., 0., 0.,],
-    #                        [0., 0., 0.,],
-    #                        [0., 0., 0.,],],
-    #
-    #                       [[0., 0., 0.,],
-    #                        [0., 0., 0.,],
-    #                        [0., 1., 1.,],],
-    #
-    #                       [[0., 0., 0.,],
-    #                        [0., 1., 1.,],
-    #                        [1., 0., 1.,],],
-    #                       ]
-    #                      , dtype=np.float32)
-    #
-    #     # print("expected")
-    #     # print(expected)
-    #     # print("result")
-    #     # print(result)
-    #
-    #     assert_array_equal(result, expected)
-    #
-    # def test_create_snapshots__specifying_a_start_index_2_works(self):
-    #     data = [[1, 1., 0., 0.,],
-    #             [1, 0., 1., 0.,],
-    #             [1, 0., 0., 1.,],
-    #
-    #             [2, 1., 1., 0.,],
-    #             [2, 0., 1., 1.,],
-    #             [2, 1., 0., 1.,],
-    #             ]
-    #     df = pd.DataFrame(data, columns = ['id', 'c1', 'c2', 'c3'])
-    #
-    #     result = group_snapshots(df, length=2, groupby=['id'], start_indices=[1])
-    #
-    #     expected = array([[[0., 0., 0.,],
-    #                        [0., 0., 0.,],],
-    #
-    #                       [[0., 0., 0.,],
-    #                        [0., 1., 0.,],],
-    #
-    #
-    #                       [[0., 0., 0.,],
-    #                        [0., 0., 0.,],],
-    #
-    #                       [[0., 0., 0.,],
-    #                        [0., 1., 1.,],],
-    #                       ]
-    #                      , dtype=np.float32)
-    #
-    #     print("expected")
-    #     print(expected)
-    #     print("result")
-    #     print(result)
-    #
-    #     assert_array_equal(result, expected)
 
     # ====================== history_snapshots ======================
     def test_history_snapshots__snapshot_length_defaults_to_history_length(self):
@@ -210,11 +113,6 @@ class TestUtilMethods(unittest.TestCase):
                            [0., 0., 1.,],],
                           ], dtype=np.float32)
 
-        # print("expected")
-        # print(expected)
-        # print("result")
-        # print(result)
-
         assert_array_equal(result, expected)
 
     def test_history_snapshots__creates_the_number_of_desired_snapshots(self):
@@ -235,11 +133,6 @@ class TestUtilMethods(unittest.TestCase):
                            [0., 1., 0.,],
                            [0., 0., 1.,],],
                           ], dtype=np.float32)
-
-        # print("expected")
-        # print(expected)
-        # print("result")
-        # print(result)
 
         assert_array_equal(result, expected)
 
@@ -264,6 +157,7 @@ class TestUtilMethods(unittest.TestCase):
                            [0., 1., 0.,],
                            [0., 0., 1.,],],
                           ], dtype=np.float32)
+
         assert_array_equal(result, expected)
 
     def test_history_snapshots__truncates_history_if_requested(self):
@@ -283,31 +177,85 @@ class TestUtilMethods(unittest.TestCase):
                           ], dtype=np.float32)
         assert_array_equal(result, expected)
 
-    # def test_history_snapshots__skips_start_index(self):
-    #     data = [[1., 0., 0.,],
-    #             [0., 1., 0.,],
-    #             [0., 0., 1.,],]
-    #     df = pd.DataFrame(data, columns = ['c1', 'c2', 'c3'])
-    #
-    #     result = history_snapshots(3, df, start_index=1)
-    #
-    #     expected = array([[[0., 0., 0.,],
-    #                        [0., 0., 0.,],
-    #                        [0., 0., 0.,],],
-    #                       [[0., 0., 0.,],
-    #                        [0., 0., 0.,],
-    #                        [0., 1., 0.,],],
-    #                       [[0., 0., 0.,],
-    #                        [0., 1., 0.,],
-    #                        [0., 0., 1.,],],
-    #                       ], dtype=np.float32)
-    #
-    #     # print("expected")
-    #     # print(expected)
-    #     # print("result")
-    #     # print(result)
-    #
-    #     assert_array_equal(result, expected)
+    def test_history_snapshots__normally_leaves_all_0_snapshots(self):
+        data = [[0., 0., 0.,],
+                [1., 0., 0.,],
+                [0., 1., 0.,],
+                [0., 0., 1.,],]
+        df = pd.DataFrame(data, columns = ['c1', 'c2', 'c3'])
+
+        result = history_snapshots(df, 3)
+
+        expected = array([[[0., 0., 0.,],
+                           [0., 0., 0.,],
+                           [0., 0., 0.,],],
+                          [[0., 0., 0.,],
+                           [0., 0., 0.,],
+                           [1., 0., 0.,],],
+                          [[0., 0., 0.,],
+                           [1., 0., 0.,],
+                           [0., 1., 0.,],],
+                          [[1., 0., 0.,],
+                           [0., 1., 0.,],
+                           [0., 0., 1.,],],
+                          ], dtype=np.float32)
+
+        assert_array_equal(result, expected)
+
+    def test_history_snapshots__skips_all_0_snapshots_if_requested(self):
+        data = [[0., 0., 0.,],
+                [1., 0., 0.,],
+                [0., 1., 0.,],
+                [0., 0., 1.,],]
+        df = pd.DataFrame(data, columns = ['c1', 'c2', 'c3'])
+
+        result = history_snapshots(df, 3, ensure_zeroes=0)
+
+        expected = array([[[0., 0., 0.,],
+                           [0., 0., 0.,],
+                           [1., 0., 0.,],],
+                          [[0., 0., 0.,],
+                           [1., 0., 0.,],
+                           [0., 1., 0.,],],
+                          [[1., 0., 0.,],
+                           [0., 1., 0.,],
+                           [0., 0., 1.,],],
+                          ], dtype=np.float32)
+
+        assert_array_equal(result, expected)
+
+    def test_history_snapshots__ensure_request_number_of_0_snapshots(self):
+        data = [[0., 0., 0.,],
+                [1., 0., 0.,],
+                [0., 1., 0.,],
+                [0., 0., 1.,],]
+        df = pd.DataFrame(data, columns = ['c1', 'c2', 'c3'])
+
+        result = history_snapshots(df, 3, ensure_zeroes=2)
+
+        expected = array([[[0., 0., 0.,],
+                           [0., 0., 0.,],
+                           [0., 0., 0.,],],
+                          [[0., 0., 0.,],
+                           [0., 0., 0.,],
+                           [1., 0., 0.,],],
+                          [[0., 0., 0.,],
+                           [1., 0., 0.,],
+                           [0., 1., 0.,],],
+                          [[1., 0., 0.,],
+                           [0., 1., 0.,],
+                           [0., 0., 1.,],],
+                          [[0., 0., 0.,],
+                           [0., 0., 0.,],
+                           [0., 0., 0.,],],
+                          ], dtype=np.float32)
+
+        print("expected")
+        print(expected)
+        print("result")
+        print(result)
+
+        assert_array_equal(result, expected)
 
     # ====================== padded_history ======================
     def test_padded_history__length_defaults_to_history_length(self):

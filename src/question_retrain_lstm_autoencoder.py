@@ -32,8 +32,8 @@ history_length = 25 # 243 possible
 feature_num = 29 # <correct or not> + <28 features>
 
 lstm_layer_size = 100
-epochs_start = 400
-epochs_end = 500
+epochs_start = 40
+epochs_end = 80
 
 # output location
 run_dir_old = run_dir = os.path.join('runs', f'run_t{history_length}_l{lstm_layer_size}_e{epochs_start}')

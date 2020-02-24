@@ -4,6 +4,7 @@ venv
 runs
 runs_*
 outputs
+outputs_*
 data
 test_data
 
