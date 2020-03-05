@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+import math
 
 from util import group_snapshots, padded_history
 
@@ -41,14 +42,20 @@ def split_snapshot_history_single(data, size):
     history_len = len(history)
     history_remainder = history_len % size
 
-    history_first = history[:history_remainder]
-    history_first_padded =  padded_history(history_first, size)
+    if history_remainder is not 0:
+        history_first = history[:history_remainder]
+        history_first_padded = padded_history(history_first, size)
 
     history_rest = history[history_remainder:]
-    history_rest_split = np.split(history_rest, size)
-    print(history_rest_split)
+    history_rest_len = len(history_rest)
+    group_size = math.floor(history_rest_len / size)
+    history_rest_split = np.split(history_rest, group_size)
+    # print(history_rest_split)
 
-    history_split = [history_first_padded] + history_rest_split
+    if history_remainder is not 0:
+        history_split = [history_first_padded] + history_rest_split
+    else:
+        history_split = history_rest_split
 
     to_predict_all = data[-1:][0]
     to_predict_label = to_predict_all[0]

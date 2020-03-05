@@ -17,7 +17,67 @@ from data import split_snapshot_history_single
 
 class TestDataMethods(unittest.TestCase):
     # ====================== split_snapshot_history_single ======================
-    def test_split_snapshot_history_single__gets_label_properly(self):
+    def test_split_snapshot_history_single__works_when_size_is_full_data_set(self):
+        data = array([[1., 0., 0.,],
+                      [2., 0., 0.,],
+                      [3., 0., 0.,],
+                      [4., 0., 0.,],
+                      [5., 0., 0.,],
+                      [6., 1., 1.,],
+                      ]
+                     , dtype=np.float32)
+
+        (history_split, to_predict_features, to_predict_label) = split_snapshot_history_single(data, 5)
+
+        assert_equal(to_predict_label, 6.)
+        assert_array_equal(to_predict_features, array([1., 1.,], dtype=np.float32))
+
+        expected = [
+            array([[1., 0., 0.,],
+                   [2., 0., 0.,],
+                   [3., 0., 0.,],
+                   [4., 0., 0.,],
+                   [5., 0., 0.,],], dtype=np.float32),
+        ]
+        result = history_split
+        # print("=== expected ===")
+        # print(expected)
+        # print("=== result ===")
+        # print(result)
+        assert_array_equal(history_split, expected)
+
+    def test_split_snapshot_history_single__work_when_size_divides_history_evenly(self):
+        data = array([[1., 0., 0.,],
+                      [2., 0., 0.,],
+                      [3., 0., 0.,],
+                      [4., 0., 0.,],
+                      [5., 0., 0.,],
+                      [6., 0., 0.,],
+                      [7., 1., 1.,],
+                      ]
+                     , dtype=np.float32)
+
+        (history_split, to_predict_features, to_predict_label) = split_snapshot_history_single(data, 2)
+
+        assert_equal(to_predict_label, 7.)
+        assert_array_equal(to_predict_features, array([1., 1.,], dtype=np.float32))
+
+        expected = [
+            array([[1., 0., 0.,],
+                   [2., 0., 0.,],], dtype=np.float32),
+            array([[3., 0., 0.,],
+                   [4., 0., 0.,],], dtype=np.float32),
+            array([[5., 0., 0.,],
+                   [6., 0., 0.,],], dtype=np.float32),
+        ]
+        # result = history_split
+        # print("=== expected ===")
+        # print(expected)
+        # print("=== result ===")
+        # print(result)
+        assert_array_equal(history_split, expected)
+
+    def test_split_snapshot_history_single__pads_last_part_of_history_if_their_is_a_remainder(self):
         data = array([[1., 0., 0.,],
                       [2., 0., 0.,],
                       [3., 0., 0.,],
@@ -46,5 +106,3 @@ class TestDataMethods(unittest.TestCase):
         # print("=== result ===")
         # print(result)
         assert_array_equal(history_split, expected)
-
-
