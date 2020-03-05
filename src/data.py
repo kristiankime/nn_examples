@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from util import group_snapshots
+from util import group_snapshots, padded_history
 
 # def question_snapshots(file=os.path.join('outputs' , 'answers_history.csv'), user_size=100, history_length=243):
 #     answer_history_base = pd.io.parsers.read_csv(os.path.join('outputs' , 'answers_history.csv'))
@@ -34,6 +34,26 @@ def question_history(file, history_length, ensure_zeros):
     answer_history_trim = answer_history_base.drop(columns=['question_id', 'timestamp'])
     answer_snapshots = group_snapshots(answer_history_trim, groupby=['anon_id'], snapshot_length=history_length, ensure_zeroes=ensure_zeros)
     return answer_snapshots
+
+
+def split_snapshot_history_single(data, size):
+    history = data[0:-1]
+    history_len = len(history)
+    history_remainder = history_len % size
+
+    history_first = history[:history_remainder]
+    history_first_padded =  padded_history(history_first, size)
+
+    history_rest = history[history_remainder:]
+    history_rest_split = np.split(history_rest, size)
+    print(history_rest_split)
+
+    history_split = [history_first_padded] + history_rest_split
+
+    to_predict_all = data[-1:][0]
+    to_predict_label = to_predict_all[0]
+    to_predict_features = to_predict_all[1:]
+    return (history_split, to_predict_features, to_predict_label)
 
 # =========== sample data generation functions
 def random_boolean_series(timesteps, feature_num):

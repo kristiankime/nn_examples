@@ -69,7 +69,11 @@ def padded_history(history_slice, desired_timesteps=None):
     # https://stackoverflow.com/questions/35751306/python-how-to-pad-numpy-array-with-zeros
     padded_history = np.zeros(padded_shape).astype(np.float32)
     # we want to fill in the last elements
-    padded_history[blank_history:, :feature_num] = history_slice.iloc[start_history:, :]
+
+    if isinstance(history_slice, pd.DataFrame):
+        padded_history[blank_history:, :feature_num] = history_slice.iloc[start_history:, :]
+    else:
+        padded_history[blank_history:, :feature_num] = history_slice[start_history:, :]
     return padded_history
 
 

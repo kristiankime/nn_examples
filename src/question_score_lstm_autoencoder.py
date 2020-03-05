@@ -32,25 +32,24 @@ history_length = 13 # 243 possible
 feature_num = 29 # <correct or not> + <28 features>
 
 lstm_layer_size = 100
-epochs_start = 200
-epochs_end = 240
+epochs = 240
 
 # output location
-run_dir_old = os.path.join('runs', f'run_t{history_length}_l{lstm_layer_size}_e{epochs_start}')
-run_dir_new = os.path.join('runs', f'run_t{history_length}_l{lstm_layer_size}_e{epochs_end}')
+run_dir = os.path.join('runs', f'run_t{history_length}_l{lstm_layer_size}_e{epochs}')
+score_dir = os.path.join('runs', f'run_t{history_length}_l{lstm_layer_size}_e{epochs}_score')
 
-if not os.path.exists(run_dir_new):
-    os.makedirs(run_dir_new)
+if not os.path.exists(score_dir):
+    os.makedirs(score_dir)
 
 # Setup some printing magic
 # https://stackoverflow.com/questions/11325019/how-to-output-to-the-console-and-file
 # https://stackoverflow.com/questions/7152762/how-to-redirect-print-output-to-a-file-using-python?noredirect=1&lq=1
-stdout_add_file(os.path.join(run_dir_new, 'log.txt'))
+stdout_add_file(os.path.join(score_dir, 'score.txt'))
 # we want to see everything in the prints
 np.set_printoptions(linewidth=200, threshold=(history_length + 1) * history_length * feature_num) # unset with np.set_printoptions()
 
 # =========== data
-answer_snapshots = read_numpy_3d_array_from_txt(os.path.join('outputs', f'snapshot_train_l{history_length}.txt'))
+answer_snapshots = read_numpy_3d_array_from_txt(os.path.join('outputs', f'snapshot_validate_l{history_length}.txt'))
 
 # input and outputs
 seq_in = answer_snapshots
@@ -63,11 +62,14 @@ seq_out = seq_in
 
 # load model
 # Recreate the exact same model purely from the file
-model = keras.models.load_model(os.path.join(run_dir_old, f'model.h5'))
+model = keras.models.load_model(os.path.join(run_dir, f'model.h5'))
 
 
-# fit model
-model.fit(seq_in, seq_out, epochs=(epochs_end - epochs_start), verbose=2)
+# eval model
+print('# Evaluate on test data')
+results = model.evaluate(seq_in, seq_out, batch_size=128, verbose=2)
+print('test loss, test acc:')
+print(results)
 
 
 # print(answer_snapshots[:21])
@@ -75,13 +77,6 @@ pred_seq_in = answer_snapshots[15:16]
 print("pred_seq_in")
 print(pred_seq_in)
 yhat = model.predict(pred_seq_in, verbose=0)
-# print(yhat)
-
-# # https://stackoverflow.com/questions/28430904/set-numpy-array-elements-to-zero-if-they-are-above-a-specific-threshold
-# threshold_indices = (yhat < 0.03) & (yhat > -0.03)
-# yhat_zeroed = np.copy(yhat)
-# yhat_zeroed[threshold_indices] = 0
-# print(yhat_zeroed)
 
 yhat_round = np.around(yhat, decimals=1)
 print("yhat_round")
@@ -99,7 +94,3 @@ print(f'end        {end}')
 print(f'difference {difference}')
 
 stdout_reset()
-
-# https://www.tensorflow.org/guide/keras/save_and_serialize
-model.save(os.path.join(run_dir_new, f'model.h5'))
-

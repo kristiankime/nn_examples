@@ -250,10 +250,10 @@ class TestUtilMethods(unittest.TestCase):
                            [0., 0., 0.,],],
                           ], dtype=np.float32)
 
-        print("expected")
-        print(expected)
-        print("result")
-        print(result)
+        # print("expected")
+        # print(expected)
+        # print("result")
+        # print(result)
 
         assert_array_equal(result, expected)
 
