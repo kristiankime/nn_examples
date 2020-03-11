@@ -49,6 +49,28 @@ embeddings = model.predict(array(hist))
 embeddings_flat = embeddings.flatten()
 embedded_history = np.append(embeddings_flat, final)
 
+# https://www.tensorflow.org/tutorials/customization/custom_training_walkthrough
+
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(200, activation=tf.nn.relu, input_shape=(1928,)),  # input shape required
+    tf.keras.layers.Dense(200, activation=tf.nn.relu),
+    tf.keras.layers.Dense(2) # Binary output
+])
+
+model.compile(optimizer='adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
+
+model.fit(train_inputs, train_labels, epochs=10)
+
+test_loss, test_acc = model.evaluate(test_inputs,  test_labels, verbose=2)
+
+print('\nTest accuracy:', test_acc)
+
+probability_model = tf.keras.Sequential([model,
+                                         tf.keras.layers.Softmax()])
+
+# model.predict(array([hist[0]]))
 
 # if not os.path.exists(run_dir):
 #     os.makedirs(run_dir)

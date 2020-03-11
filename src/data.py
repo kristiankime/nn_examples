@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import math
 
+from numpy import array
 from util import group_snapshots, padded_history
 
 # def question_snapshots(file=os.path.join('outputs' , 'answers_history.csv'), user_size=100, history_length=243):
@@ -61,6 +62,25 @@ def split_snapshot_history_single(data, size):
     to_predict_label = to_predict_all[0]
     to_predict_features = to_predict_all[1:]
     return (history_split, to_predict_features, to_predict_label)
+
+
+def create_embedded_history(model, hist, final):
+    # (hist, final, label) = split_snapshot_history_single(snapshot, model_history_length)
+    embeddings = model.predict(array(hist))
+    embeddings_flat = embeddings.flatten()
+    embedded_history = np.append(embeddings_flat, final)
+    return embedded_history
+
+
+def split_snapshot_history(model, histories, size):
+    inputs = []
+    labels = []
+    for history in histories:
+        history_split, to_predict_features, to_predict_label = split_snapshot_history_single(history, size)
+        embedded_history = create_embedded_history(model, history_split, to_predict_features)
+        inputs.append(embedded_history)
+        labels.append(to_predict_label)
+    return array(inputs), array(labels)
 
 # =========== sample data generation functions
 def random_boolean_series(timesteps, feature_num):
