@@ -14,7 +14,7 @@ from tensorflow.keras.models import Model
 from logs import stdout_add_file, stdout_reset
 from util import group_snapshots, read_numpy_3d_array_from_txt
 from models import lstm_autoencoder
-from data import split_snapshot_history_single
+from data import split_snapshot_history_single, split_snapshot_history
 
 start = datetime.datetime.now()
 # set the seed for reproducibility
@@ -34,22 +34,31 @@ epochs = 240
 
 # Get the model and switch to using the LSTM Layer as output
 model_dir = os.path.join('runs', f'run_t{model_history_length}_l{lstm_layer_size}_e{epochs}')
-model = keras.models.load_model(os.path.join(model_dir, f'model.h5'))
+embedding_model = keras.models.load_model(os.path.join(model_dir, f'model.h5'))
 # connect the encoder LSTM as the output layer
-model = Model(inputs=model.inputs, outputs=model.layers[0].output)
+embedding_model = Model(inputs=embedding_model.inputs, outputs=embedding_model.layers[0].output)
 
 
 answer_snapshots = read_numpy_3d_array_from_txt(os.path.join('outputs', f'snapshot_train_l{full_history_length}_10p.txt'))
 
-snapshot = answer_snapshots[100:101][0]
 
-(hist, final, label) = split_snapshot_history_single(snapshot, model_history_length)
+(snapshots_embedded, snapshots_labels) = split_snapshot_history(embedding_model, answer_snapshots, model_history_length)
 
-embeddings = model.predict(array(hist))
-embeddings_flat = embeddings.flatten()
-embedded_history = np.append(embeddings_flat, final)
+np.set_printoptions(linewidth=200, threshold=(full_history_length + 1) * model_history_length * feature_num) # unset with np.set_printoptions()
+
+
+# snapshot = answer_snapshots[100:101][0]
+#
+# (hist, final, label) = split_snapshot_history_single(snapshot, model_history_length)
+#
+# embeddings = model.predict(array(hist))
+# embeddings_flat = embeddings.flatten()
+# embedded_history = np.append(embeddings_flat, final)
+#
+
 
 # https://www.tensorflow.org/tutorials/customization/custom_training_walkthrough
+# https://www.tensorflow.org/tutorials/keras/classification?hl=nb
 
 model = tf.keras.Sequential([
     tf.keras.layers.Dense(200, activation=tf.nn.relu, input_shape=(1928,)),  # input shape required
@@ -60,15 +69,18 @@ model = tf.keras.Sequential([
 model.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
+train_inputs = snapshots_embedded
+train_labels = snapshots_labels
+model.fit(train_inputs, train_labels, epochs=1)
 
-model.fit(train_inputs, train_labels, epochs=10)
 
-test_loss, test_acc = model.evaluate(test_inputs,  test_labels, verbose=2)
+test_inputs = snapshots_embedded
+test_labels = snapshots_labels
+test_loss, test_acc = model.evaluate(test_inputs, test_labels, verbose=2)
 
 print('\nTest accuracy:', test_acc)
-
-probability_model = tf.keras.Sequential([model,
-                                         tf.keras.layers.Softmax()])
+#
+# probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
 # model.predict(array([hist[0]]))
 
