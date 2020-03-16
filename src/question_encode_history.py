@@ -61,17 +61,15 @@ np.set_printoptions(linewidth=200, threshold=(full_history_length + 1) * model_h
 # https://www.tensorflow.org/tutorials/keras/classification?hl=nb
 
 model = tf.keras.Sequential([
-    tf.keras.layers.Dense(200, activation=tf.nn.relu, input_shape=(1928,)),  # input shape required
-    tf.keras.layers.Dense(200, activation=tf.nn.relu),
+    tf.keras.layers.Dense(512, activation=tf.nn.relu, input_shape=(1928,)),  # input shape required
+    tf.keras.layers.Dense(128, activation=tf.nn.relu),
     tf.keras.layers.Dense(2) # Binary output
 ])
 
-model.compile(optimizer='adam',
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-              metrics=['accuracy'])
+model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
 train_inputs = snapshots_embedded
 train_labels = snapshots_labels
-model.fit(train_inputs, train_labels, epochs=1)
+model.fit(train_inputs, train_labels, epochs=10)
 
 
 test_inputs = snapshots_embedded
@@ -79,8 +77,13 @@ test_labels = snapshots_labels
 test_loss, test_acc = model.evaluate(test_inputs, test_labels, verbose=2)
 
 print('\nTest accuracy:', test_acc)
+
 #
-# probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
+probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
+predictions = probability_model.predict(test_inputs)
+predictions[0]
+np.argmax(predictions[0]) # pick the highest chance
+test_labels[0]
 
 # model.predict(array([hist[0]]))
 
