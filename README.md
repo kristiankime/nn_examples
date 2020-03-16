@@ -19,6 +19,7 @@ pip install --upgrade tensorflow
 pip install pydot
 pip install graphviz
 pip install pandas
+pip install matplotlib
 
 deactivate
 
