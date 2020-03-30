@@ -112,8 +112,7 @@ def read_numpy_3d_array_from_txt(file='test.txt'):
     # Read the array from disk
     new_data = np.loadtxt(file)
 
-    # However, going back to 3D is easy if we know the
-    # original shape of the array
+    # going back to 3D is easy if we know the original shape of the array
     new_data = new_data.reshape((d1, d2, d3))
     return new_data
 
