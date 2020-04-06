@@ -29,7 +29,7 @@ questions_details = questions_details_prep(os.path.join('data' , 'questions_deta
 questions = questions_links.join(questions_details, how='inner')
 questions = questions.set_index('question_id')
 
-answers_correct = pd.io.parsers.read_csv(os.path.join('data' , 'answers_correct_attempts_1.csv'))
+answers_correct = pd.io.parsers.read_csv(os.path.join('data', 'answers_correct_attempts_1.csv'))
 answers_correct = answers_correct.set_index('question_id')
 # answers_correct.dtypes
 
@@ -39,5 +39,8 @@ answers_history = answers_correct.join(questions, how='inner')
 answers_history.reset_index(level=0, inplace=True)
 answers_history = answers_history.sort_values(by=['anon_id', 'timestamp'], ascending=[True, True])
 # answers_history.loc[:,['question_id','anon_id','timestamp']]
+
+if not os.path.exists('outputs'):
+    os.makedirs('outputs')
 
 answers_history.to_csv(os.path.join('outputs', 'answers_history.csv'), index=False)

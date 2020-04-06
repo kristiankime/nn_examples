@@ -4,47 +4,38 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import os
 import tensorflow as tf
 import numpy as np
-import pandas as pd
 import datetime
+from tensorflow import keras
 
-from numpy import array
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM
-from tensorflow.keras.layers import Dense
-from tensorflow.keras.layers import RepeatVector
-from tensorflow.keras.layers import TimeDistributed
-from tensorflow.keras.utils import plot_model
-from tensorflow.keras.optimizers import Adam
-
-from logs import stdout_add_file, stdout_reset
-from util import group_snapshots, read_numpy_3d_array_from_txt
-from models import lstm_autoencoder
+from util.logs import stdout_add_file, stdout_reset
+from util.util import read_numpy_3d_array_from_txt
 
 start = datetime.datetime.now()
 # set the seed for reproducibility
 tf.random.set_seed(23)
-np.random.seed(23)
 np.random.seed(23)  # pandas uses numpy
 
 # =========== Overview
 # parameterization
-# user_size = 500 # 3285
-history_length = 25 # 243 possible but can't do all of them sometimes see this https://github.com/keras-team/keras/issues/4563 and sometimes the results are just bad
+# user_size = 800 # 3285
+history_length = 13 # 243 possible
 feature_num = 29 # <correct or not> + <28 features>
 
 lstm_layer_size = 100
-epochs = 20
+epochs_start = 200
+epochs_end = 240
 
 # output location
-run_dir = os.path.join('runs', f'run_t{history_length}_l{lstm_layer_size}_e{epochs}')
+run_dir_old = os.path.join('runs', f'run_t{history_length}_l{lstm_layer_size}_e{epochs_start}')
+run_dir_new = os.path.join('runs', f'run_t{history_length}_l{lstm_layer_size}_e{epochs_end}')
 
-if not os.path.exists(run_dir):
-    os.makedirs(run_dir)
+if not os.path.exists(run_dir_new):
+    os.makedirs(run_dir_new)
 
 # Setup some printing magic
 # https://stackoverflow.com/questions/11325019/how-to-output-to-the-console-and-file
 # https://stackoverflow.com/questions/7152762/how-to-redirect-print-output-to-a-file-using-python?noredirect=1&lq=1
-stdout_add_file(os.path.join(run_dir, 'log.txt'))
+stdout_add_file(os.path.join(run_dir_new, 'log.txt'))
 # we want to see everything in the prints
 np.set_printoptions(linewidth=200, threshold=(history_length + 1) * history_length * feature_num) # unset with np.set_printoptions()
 
@@ -56,13 +47,17 @@ seq_in = answer_snapshots
 # we're using an auto encoder so the input is the output
 seq_out = seq_in
 
-# define model
-model = lstm_autoencoder(lstm_layer_size, history_length, feature_num)
-optimizer = Adam(learning_rate=0.001, epsilon=1e-7) # https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/Adam
-model.compile(optimizer=optimizer, loss='mse')
+
+# https://github.com/keras-team/keras/issues/4563
+
+
+# load model
+# Recreate the exact same model purely from the file
+model = keras.models.load_model(os.path.join(run_dir_old, f'model.h5'))
+
 
 # fit model
-model.fit(seq_in, seq_out, epochs=epochs, verbose=2)
+model.fit(seq_in, seq_out, epochs=(epochs_end - epochs_start), verbose=2)
 
 
 # print(answer_snapshots[:21])
@@ -96,5 +91,5 @@ print(f'difference {difference}')
 stdout_reset()
 
 # https://www.tensorflow.org/guide/keras/save_and_serialize
-model.save(os.path.join(run_dir, 'model.h5'))
+model.save(os.path.join(run_dir_new, f'model.h5'))
 

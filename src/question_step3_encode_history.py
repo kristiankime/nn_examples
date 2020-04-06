@@ -12,7 +12,7 @@ from numpy import array
 from tensorflow.keras.models import Model
 
 from logs import stdout_add_file, stdout_reset
-from util import group_snapshots, read_numpy_3d_array_from_txt
+from util.util import group_snapshots, read_numpy_3d_array_from_txt
 from models import lstm_autoencoder
 from data import split_snapshot_history_single, split_snapshot_history
 

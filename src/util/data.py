@@ -4,7 +4,7 @@ import pandas as pd
 import math
 
 from numpy import array
-from util import group_snapshots, padded_history
+from util.util import group_snapshots, padded_history
 
 # def question_snapshots(file=os.path.join('outputs' , 'answers_history.csv'), user_size=100, history_length=243):
 #     answer_history_base = pd.io.parsers.read_csv(os.path.join('outputs' , 'answers_history.csv'))

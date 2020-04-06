@@ -7,9 +7,9 @@ from numpy import array
 from numpy.testing import assert_array_equal, assert_almost_equal, assert_equal
 from unittest.mock import MagicMock
 
-from util import padded_history, history_snapshots, group_snapshots
-from util import write_numpy_3d_array_as_txt, read_numpy_3d_array_from_txt
-from data import split_snapshot_history, split_snapshot_history_single, create_embedded_history
+from util.util import padded_history, history_snapshots, group_snapshots
+from util.util import write_numpy_3d_array_as_txt, read_numpy_3d_array_from_txt
+from util.data import split_snapshot_history, split_snapshot_history_single, create_embedded_history
 
 # print("expected")
 # print(expected)

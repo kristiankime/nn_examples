@@ -6,8 +6,8 @@ import pandas as pd
 from numpy import array
 from numpy.testing import assert_array_equal
 
-from util import padded_history, history_snapshots, group_snapshots
-from util import write_numpy_3d_array_as_txt, read_numpy_3d_array_from_txt
+from util.util import padded_history, history_snapshots, group_snapshots
+from util.util import write_numpy_3d_array_as_txt, read_numpy_3d_array_from_txt
 
 
 # print("expected")
@@ -321,7 +321,7 @@ class TestUtilMethods(unittest.TestCase):
                        [0., 0., 1.,],],
                       ], dtype=np.float32)
 
-        write_numpy_3d_array_as_txt(data, '../test_data/test_write_numpy_3d_array_as_txt_and_read_numpy_3d_array_from_txt.txt', fmt='%.1e')
+        write_numpy_3d_array_as_txt(data, '../../test_data/test_write_numpy_3d_array_as_txt_and_read_numpy_3d_array_from_txt.txt', fmt='%.1e')
 
-        result = read_numpy_3d_array_from_txt('../test_data/test_write_numpy_3d_array_as_txt_and_read_numpy_3d_array_from_txt.txt')
+        result = read_numpy_3d_array_from_txt('../../test_data/test_write_numpy_3d_array_as_txt_and_read_numpy_3d_array_from_txt.txt')
         assert_array_equal(result, data)
