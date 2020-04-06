@@ -31,42 +31,35 @@ lstm_epochs = 240
 
 pred_model_layer_1 = 1024
 pred_model_layer_2 = 256
-pred_epochs = 10
+pred_start_epochs = 40
+pred_end_epochs = 80
 
 np.set_printoptions(linewidth=200, threshold=(full_history_length + 1) * model_history_length * feature_num) # unset with np.set_printoptions()
 
 # output location
-run_dir = os.path.join('runs', f'run_embedded_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_epochs}')
+run_dir_old = os.path.join('runs', f'run_embedded_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_start_epochs}')
+run_dir_new = os.path.join('runs', f'run_embedded_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_end_epochs}')
 
-if not os.path.exists(run_dir):
-    os.makedirs(run_dir)
+if not os.path.exists(run_dir_new):
+    os.makedirs(run_dir_new)
 
-stdout_add_file(os.path.join(run_dir, 'log.txt'))
-
-# snapshots_train_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_train_embedded_t{model_history_length}_l{lstm_layer_size}_e{epochs}.csv'), delimiter=",")
-# snapshots_train_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_train_labels_t{model_history_length}_l{lstm_layer_size}_e{epochs}.csv'), delimiter=",")
+stdout_add_file(os.path.join(run_dir_new, 'log.txt'))
 
 snapshots_train_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_train_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip")
 snapshots_train_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_train_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip")
 
-# =========== Build the prediction model ===========
-# https://www.tensorflow.org/tutorials/customization/custom_training_walkthrough
-# https://www.tensorflow.org/tutorials/keras/classification?hl=nb
+# =========== Load the prediction model ===========
 
-model = tf.keras.Sequential([
-    tf.keras.layers.Dense(pred_model_layer_1, activation=tf.nn.relu, input_shape=(1928,)),  # input shape required
-    tf.keras.layers.Dense(pred_model_layer_2, activation=tf.nn.relu),
-    tf.keras.layers.Dense(2) # Binary output
-])
-model.compile(optimizer='adam', loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), metrics=['accuracy'])
+# load model
+# Recreate the exact same model purely from the file
+model = keras.models.load_model(os.path.join(run_dir_old, f'model.h5'))
 
 # train the model
 train_inputs = snapshots_train_embedded
 train_labels = snapshots_train_labels
 
-model_fit_history = model.fit(train_inputs, train_labels, epochs=pred_epochs)
+model_fit_history = model.fit(train_inputs, train_labels, epochs=(pred_end_epochs - pred_start_epochs), verbose=2)
 # model.fit(train_inputs, train_labels, epochs=pred_epochs, verbose=2)
-
 
 # =========== Validate ===========
 snapshots_validate_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_validate_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip")
@@ -79,13 +72,6 @@ test_loss, test_acc = model.evaluate(test_inputs, test_labels, verbose=2)
 print('\nTest accuracy:', test_acc)
 
 
-# # =========== Probability version of the model ===========
-# probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
-# predictions = probability_model.predict(test_inputs)
-# predictions[0]
-# np.argmax(predictions[0]) # pick the highest chance
-# test_labels[0]
-
 # =========== End Reporting ===========
 end = datetime.datetime.now()
 difference = end - start
@@ -95,5 +81,24 @@ print(f'end        {end}')
 print(f'difference {difference}')
 
 stdout_reset()
+
 # https://www.tensorflow.org/guide/keras/save_and_serialize
-model.save(os.path.join(run_dir, 'model.h5'))
+model.save(os.path.join(run_dir_new, 'model.h5'))
+
+# # =========== Validate ===========
+# snapshots_validate = read_numpy_3d_array_from_txt(os.path.join('outputs', f'snapshot_validate_l{full_history_length}_10p.txt'))
+# (snapshots_validate_embedded, snapshots_validate_labels) = split_snapshot_history(embedding_model, snapshots_validate, model_history_length)
+
+# test_inputs = snapshots_validate_embedded
+# test_labels = snapshots_validate_labels
+# test_loss, test_acc = model.evaluate(test_inputs, test_labels, verbose=2)
+#
+# print('\nTest accuracy:', test_acc)
+#
+#
+# # =========== Probability version of the model ===========
+# probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
+# predictions = probability_model.predict(test_inputs)
+# predictions[0]
+# np.argmax(predictions[0]) # pick the highest chance
+# test_labels[0]
