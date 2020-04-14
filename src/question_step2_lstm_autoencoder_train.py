@@ -69,8 +69,8 @@ optimizer = Adam(learning_rate=0.001, epsilon=1e-7) # https://www.tensorflow.org
 model.compile(optimizer=optimizer, loss='mse')
 
 # fit model
-model.fit(seq_in, seq_out, epochs=epochs, verbose=1)
-# model.fit(seq_in, seq_out, epochs=epochs, verbose=2)
+# model.fit(seq_in, seq_out, epochs=epochs, verbose=1)
+model.fit(seq_in, seq_out, epochs=epochs, verbose=2)
 
 
 # print(answer_snapshots[:21])
