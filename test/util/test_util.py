@@ -93,6 +93,54 @@ class TestUtilMethods(unittest.TestCase):
 
         assert_array_equal(result, expected)
 
+    def test_create_snapshots__ensure_snapshot_length(self):
+        data = [[1, 1., 0., 0.,],
+                [1, 0., 1., 0.,],
+                [1, 0., 0., 1.,],
+
+                [2, 1., 1., 0.,],
+                [2, 0., 1., 1.,],
+                [2, 1., 0., 1.,],
+                ]
+        df = pd.DataFrame(data, columns = ['id', 'c1', 'c2', 'c3'])
+
+        result = group_snapshots(df, groupby=['id'], snapshot_length=4)
+
+        expected = array([[[0., 0., 0.,],
+                           [0., 0., 0.,],
+                           [0., 0., 0.,],
+                           [1., 0., 0.,],],
+
+                          [[0., 0., 0.,],
+                           [0., 0., 0.,],
+                           [1., 0., 0.,],
+                           [0., 1., 0.,],],
+
+                          [[0., 0., 0.,],
+                           [1., 0., 0.,],
+                           [0., 1., 0.,],
+                           [0., 0., 1.,],],
+
+
+                          [[0., 0., 0.,],
+                           [0., 0., 0.,],
+                           [0., 0., 0.,],
+                           [1., 1., 0.,],],
+
+                          [[0., 0., 0.,],
+                           [0., 0., 0.,],
+                           [1., 1., 0.,],
+                           [0., 1., 1.,],],
+
+                          [[0., 0., 0.,],
+                           [1., 1., 0.,],
+                           [0., 1., 1.,],
+                           [1., 0., 1.,],],
+                          ]
+                         , dtype=np.float32)
+
+        assert_array_equal(result, expected)
+
     # ====================== history_snapshots ======================
     def test_history_snapshots__snapshot_length_defaults_to_history_length(self):
         data = [[1., 0., 0.,],
@@ -224,7 +272,7 @@ class TestUtilMethods(unittest.TestCase):
 
         assert_array_equal(result, expected)
 
-    def test_history_snapshots__ensure_request_number_of_0_snapshots(self):
+    def test_history_snapshots__check_the_request_number_of_all_0_snapshots_is_returned(self):
         data = [[0., 0., 0.,],
                 [1., 0., 0.,],
                 [0., 1., 0.,],
@@ -248,6 +296,36 @@ class TestUtilMethods(unittest.TestCase):
                           [[0., 0., 0.,],
                            [0., 0., 0.,],
                            [0., 0., 0.,],],
+                          ], dtype=np.float32)
+
+        # print("expected")
+        # print(expected)
+        # print("result")
+        # print(result)
+
+        assert_array_equal(result, expected)
+
+    def test_history_snapshots__check_we_can_ensure_the_number_of_all_0_snapshots_is_one(self):
+        data = [[0., 0., 0.,],
+                [1., 0., 0.,],
+                [0., 1., 0.,],
+                [0., 0., 1.,],]
+        df = pd.DataFrame(data, columns = ['c1', 'c2', 'c3'])
+
+        result = history_snapshots(df, 3, ensure_zeroes=1)
+
+        expected = array([[[0., 0., 0.,],
+                           [0., 0., 0.,],
+                           [0., 0., 0.,],],
+                          [[0., 0., 0.,],
+                           [0., 0., 0.,],
+                           [1., 0., 0.,],],
+                          [[0., 0., 0.,],
+                           [1., 0., 0.,],
+                           [0., 1., 0.,],],
+                          [[1., 0., 0.,],
+                           [0., 1., 0.,],
+                           [0., 0., 1.,],],
                           ], dtype=np.float32)
 
         # print("expected")

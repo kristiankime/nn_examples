@@ -11,10 +11,10 @@ from tensorflow import keras
 from numpy import array
 from tensorflow.keras.models import Model
 
-from logs import stdout_add_file, stdout_reset
+from util.logs import stdout_add_file, stdout_reset
 from util.util import group_snapshots, read_numpy_3d_array_from_txt
-from models import lstm_autoencoder
-from data import split_snapshot_history_single, split_snapshot_history
+from models import lstm_autoencoder, lstm_autoencoder_embedding_layer
+from util.data import split_snapshot_history_single, split_snapshot_history
 
 start = datetime.datetime.now()
 # set the seed for reproducibility
@@ -47,7 +47,7 @@ np.set_printoptions(linewidth=200, threshold=(full_history_length + 1) * model_h
 model_dir = os.path.join('runs', f'run_t{model_history_length}_l{lstm_layer_size}_e{epochs}')
 embedding_model = keras.models.load_model(os.path.join(model_dir, f'model.h5'))
 # connect the encoder LSTM as the output layer
-embedding_model = Model(inputs=embedding_model.inputs, outputs=embedding_model.layers[0].output)
+embedding_model = Model(inputs=embedding_model.inputs, outputs=lstm_autoencoder_embedding_layer(embedding_model))
 
 # ------- Training
 # snapshots_train = read_numpy_3d_array_from_txt(os.path.join('outputs', f'snapshot_train_l{full_history_length}_10p.txt'))

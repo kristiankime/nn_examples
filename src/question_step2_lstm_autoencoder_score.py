@@ -29,7 +29,7 @@ np.random.seed(23)  # pandas uses numpy
 # parameterization
 # user_size = 800 # 3285
 history_length = 13 # 243 possible
-feature_num = 29 # <correct or not> + <28 features>
+feature_num = 27 # <correct or not> + <26 features>
 
 lstm_layer_size = 100
 epochs = 240

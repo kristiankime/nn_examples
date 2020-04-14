@@ -30,13 +30,13 @@ np.random.seed(23)  # pandas uses numpy
 # parameterization
 # user_size = 500 # 3285
 history_length = 25 # 243 possible but can't do all of them sometimes see this https://github.com/keras-team/keras/issues/4563 and sometimes the results are just bad
-feature_num = 29 # <correct or not> + <28 features>
+feature_num = 27 # <correct or not> + <26 features>
 
-lstm_layer_size = 100
-epochs = 20
+lstm_layer_size = 64
+epochs = 10
 
 # output location
-run_dir = os.path.join('runs', f'run_t{history_length}_l{lstm_layer_size}_e{epochs}')
+run_dir = os.path.join('runs', f'run_t{history_length}_l{lstm_layer_size}_e{epochs}_5p')
 
 if not os.path.exists(run_dir):
     os.makedirs(run_dir)
@@ -49,7 +49,14 @@ stdout_add_file(os.path.join(run_dir, 'log.txt'))
 np.set_printoptions(linewidth=200, threshold=(history_length + 1) * history_length * feature_num) # unset with np.set_printoptions()
 
 # =========== data
+
+print(f'start           {start}')
 answer_snapshots = read_numpy_3d_array_from_txt(os.path.join('outputs', f'snapshot_train_l{history_length}.txt'))
+# answer_snapshots = read_numpy_3d_array_from_txt(os.path.join('outputs', f'snapshot_train_l{history_length}_10p.txt'))
+end_load = datetime.datetime.now()
+difference_load = end_load - start
+print(f'end_load        {end_load}')
+print(f'difference_load {difference_load}')
 
 # input and outputs
 seq_in = answer_snapshots
@@ -62,7 +69,8 @@ optimizer = Adam(learning_rate=0.001, epsilon=1e-7) # https://www.tensorflow.org
 model.compile(optimizer=optimizer, loss='mse')
 
 # fit model
-model.fit(seq_in, seq_out, epochs=epochs, verbose=2)
+model.fit(seq_in, seq_out, epochs=epochs, verbose=1)
+# model.fit(seq_in, seq_out, epochs=epochs, verbose=2)
 
 
 # print(answer_snapshots[:21])
