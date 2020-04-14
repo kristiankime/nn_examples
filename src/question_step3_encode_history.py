@@ -24,9 +24,9 @@ np.random.seed(23)  # pandas uses numpy
 # =========== Overview
 # parameterization
 full_history_length = 243
-model_history_length = 13 # 243 possible but can't do all of them sometimes see this https://github.com/keras-team/keras/issues/4563 and sometimes the results are just bad
-feature_num = 29 # <correct or not> + <28 features>
-lstm_layer_size = 100
+model_history_length = 25 # 243 possible but can't do all of them sometimes see this https://github.com/keras-team/keras/issues/4563 and sometimes the results are just bad
+feature_num = 27 # <correct or not> + <26 features>
+lstm_layer_size = 64
 epochs = 240
 
 # pred_model_layer_1 = 512

@@ -36,7 +36,7 @@ lstm_layer_size = 64
 epochs = 10
 
 # output location
-run_dir = os.path.join('runs', f'run_t{history_length}_l{lstm_layer_size}_e{epochs}_5p')
+run_dir = os.path.join('runs', f'run_t{history_length}_l{lstm_layer_size}_e{epochs}')
 
 if not os.path.exists(run_dir):
     os.makedirs(run_dir)
