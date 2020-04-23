@@ -18,12 +18,12 @@ np.random.seed(23)  # pandas uses numpy
 # =========== Overview
 # parameterization
 # user_size = 800 # 3285
-history_length = 25 # 243 possible
+history_length = 13 # 243 possible
 feature_num = 27 # <correct or not> + <26 features>
 
-lstm_layer_size = 64
-epochs_start = 40
-epochs_end = 50
+lstm_layer_size = 80
+epochs_start = 240
+epochs_end = 245
 
 # output location
 run_dir_old = os.path.join('runs', f'run_t{history_length}_l{lstm_layer_size}_e{epochs_start}')

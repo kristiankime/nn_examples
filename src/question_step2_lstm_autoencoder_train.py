@@ -29,11 +29,11 @@ np.random.seed(23)  # pandas uses numpy
 # =========== Overview
 # parameterization
 # user_size = 500 # 3285
-history_length = 25 # 243 possible but can't do all of them sometimes see this https://github.com/keras-team/keras/issues/4563 and sometimes the results are just bad
+history_length = 13 # 243 possible but can't do all of them sometimes see this https://github.com/keras-team/keras/issues/4563 and sometimes the results are just bad
 feature_num = 27 # <correct or not> + <26 features>
 
-lstm_layer_size = 64
-epochs = 10
+lstm_layer_size = 80
+epochs = 5
 
 # output location
 run_dir = os.path.join('runs', f'run_t{history_length}_l{lstm_layer_size}_e{epochs}')
