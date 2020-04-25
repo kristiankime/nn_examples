@@ -6,6 +6,7 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 import datetime
+import math
 from tensorflow import keras
 
 from util.logs import stdout_add_file, stdout_reset
@@ -19,9 +20,11 @@ np.random.seed(23)  # pandas uses numpy
 # parameterization
 full_history_length = 243
 model_history_length = 13 # 243 possible but can't do all of them sometimes see this https://github.com/keras-team/keras/issues/4563 and sometimes the results are just bad
-feature_num = 29 # <correct or not> + <28 features>
-lstm_layer_size = 100
-lstm_epochs = 240
+feature_num = 27 # <correct or not> + <26 features>
+lstm_layer_size = 80
+lstm_epochs = 245
+# TODO calculate this
+input_size = 1546
 
 pred_model_layer_1 = 1024
 pred_model_layer_2 = 256
@@ -48,7 +51,7 @@ snapshots_train_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapsh
 # https://www.tensorflow.org/tutorials/keras/classification?hl=nb
 
 model = tf.keras.Sequential([
-    tf.keras.layers.Dense(pred_model_layer_1, activation=tf.nn.relu, input_shape=(1928,)),  # input shape required
+    tf.keras.layers.Dense(pred_model_layer_1, activation=tf.nn.relu, input_shape=(input_size,)),  # input shape required
     tf.keras.layers.Dense(pred_model_layer_2, activation=tf.nn.relu),
     tf.keras.layers.Dense(2) # Binary output
 ])

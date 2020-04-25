@@ -24,10 +24,10 @@ np.random.seed(23)  # pandas uses numpy
 # =========== Overview
 # parameterization
 full_history_length = 243
-model_history_length = 25 # 243 possible but can't do all of them sometimes see this https://github.com/keras-team/keras/issues/4563 and sometimes the results are just bad
+model_history_length = 13 # 243 possible but can't do all of them sometimes see this https://github.com/keras-team/keras/issues/4563 and sometimes the results are just bad
 feature_num = 27 # <correct or not> + <26 features>
-lstm_layer_size = 64
-epochs = 240
+lstm_layer_size = 80
+epochs = 245
 
 # pred_model_layer_1 = 512
 # pred_model_layer_2 = 128
@@ -45,32 +45,43 @@ np.set_printoptions(linewidth=200, threshold=(full_history_length + 1) * model_h
 # =========== Created Embedded History / labels ===========
 # Get the model and switch to using the LSTM Layer as output
 model_dir = os.path.join('runs', f'run_t{model_history_length}_l{lstm_layer_size}_e{epochs}')
+print(f"model_dir {model_dir}")
+
 embedding_model = keras.models.load_model(os.path.join(model_dir, f'model.h5'))
 # connect the encoder LSTM as the output layer
 embedding_model = Model(inputs=embedding_model.inputs, outputs=lstm_autoencoder_embedding_layer(embedding_model))
+print(f"loaded model")
 
 # ------- Training
 # snapshots_train = read_numpy_3d_array_from_txt(os.path.join('outputs', f'snapshot_train_l{full_history_length}_10p.txt'))
 snapshots_train = read_numpy_3d_array_from_txt(os.path.join('outputs', f'snapshot_train_l{full_history_length}.txt'))
+print(f"loaded snapshots train")
 (snapshots_train_embedded, snapshots_train_labels) = split_snapshot_history(embedding_model, snapshots_train, model_history_length)
+print(f"split snapshots train")
 # np.savetxt(os.path.join('outputs', f'snapshots_train_embedded_t{model_history_length}_l{lstm_layer_size}_e{epochs}.csv'), snapshots_train_embedded, fmt='%1.4f', delimiter=",")
 # np.savetxt(os.path.join('outputs', f'snapshots_train_labels_t{model_history_length}_l{lstm_layer_size}_e{epochs}.csv'), snapshots_train_labels, fmt='%1.4f', delimiter=",")
 np.savetxt(os.path.join('outputs', f'snapshots_train_embedded_t{model_history_length}_l{lstm_layer_size}_e{epochs}.csv.gz'), snapshots_train_embedded, fmt='%1.4f', delimiter=",")
 np.savetxt(os.path.join('outputs', f'snapshots_train_labels_t{model_history_length}_l{lstm_layer_size}_e{epochs}.csv.gz'), snapshots_train_labels, fmt='%1.4f', delimiter=",")
+print(f"saved snapshots train")
 
 
 # ------- Validation
 snapshots_validate = read_numpy_3d_array_from_txt(os.path.join('outputs', f'snapshot_validate_l{full_history_length}.txt'))
+print(f"loaded snapshots validate")
 (snapshots_validate_embedded, snapshots_validate_labels) = split_snapshot_history(embedding_model, snapshots_validate, model_history_length)
+print(f"split snapshots validate")
 np.savetxt(os.path.join('outputs', f'snapshots_validate_embedded_t{model_history_length}_l{lstm_layer_size}_e{epochs}.csv.gz'), snapshots_validate_embedded, fmt='%1.4f', delimiter=",")
 np.savetxt(os.path.join('outputs', f'snapshots_validate_labels_t{model_history_length}_l{lstm_layer_size}_e{epochs}.csv.gz'), snapshots_validate_labels, fmt='%1.4f', delimiter=",")
+print(f"saved snapshots validate")
 
 # ------- Test
 snapshots_test = read_numpy_3d_array_from_txt(os.path.join('outputs', f'snapshot_test_l{full_history_length}.txt'))
+print(f"loaded snapshots test")
 (snapshots_test_embedded, snapshots_test_labels) = split_snapshot_history(embedding_model, snapshots_test, model_history_length)
+print(f"split snapshots test")
 np.savetxt(os.path.join('outputs', f'snapshots_test_embedded_t{model_history_length}_l{lstm_layer_size}_e{epochs}.csv.gz'), snapshots_test_embedded, fmt='%1.4f', delimiter=",")
 np.savetxt(os.path.join('outputs', f'snapshots_test_labels_t{model_history_length}_l{lstm_layer_size}_e{epochs}.csv.gz'), snapshots_test_labels, fmt='%1.4f', delimiter=",")
-
+print(f"saved snapshots test")
 
 
 

@@ -25,14 +25,14 @@ np.random.seed(23)  # pandas uses numpy
 # parameterization
 full_history_length = 243
 model_history_length = 13 # 243 possible but can't do all of them sometimes see this https://github.com/keras-team/keras/issues/4563 and sometimes the results are just bad
-feature_num = 29 # <correct or not> + <28 features>
-lstm_layer_size = 100
-lstm_epochs = 240
+feature_num = 27 # <correct or not> + <26 features>
+lstm_layer_size = 80
+lstm_epochs = 245
 
 pred_model_layer_1 = 1024
 pred_model_layer_2 = 256
-pred_start_epochs = 40
-pred_end_epochs = 80
+pred_start_epochs = 100
+pred_end_epochs = 140
 
 np.set_printoptions(linewidth=200, threshold=(full_history_length + 1) * model_history_length * feature_num) # unset with np.set_printoptions()
 
