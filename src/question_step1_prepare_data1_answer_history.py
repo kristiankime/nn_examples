@@ -6,7 +6,7 @@ import pandas as pd
 def questions_links_prep(file):
     # questions_links = pd.io.parsers.read_csv(os.path.join('data' , 'questions_links.csv'))
     questions_links = pd.io.parsers.read_csv(file)
-    questions_links = questions_links.loc[:,['problem_source','question_id']].rename(columns={'problem_source': 'question'})
+    questions_links = questions_links.loc[:, ['problem_source','question_id']].rename(columns={'problem_source': 'question'})
     questions_links = questions_links.set_index('question')
     return questions_links
 
@@ -22,10 +22,10 @@ def questions_details_prep(file):
     return questions_details
 
 
-questions_links = questions_links_prep(os.path.join('data' , 'questions_links.csv'))
+questions_links = questions_links_prep(os.path.join('data', 'questions_links.csv'))
 # questions_links.dtypes
 
-questions_details = questions_details_prep(os.path.join('data' , 'questions_details.243diff.csv'))
+questions_details = questions_details_prep(os.path.join('data', 'questions_details.243diff.csv'))
 # questions_details.dtypes
 
 questions = questions_links.join(questions_details, how='inner')

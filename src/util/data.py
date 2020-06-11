@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import pandas as pd
 import math
@@ -33,9 +32,39 @@ from util.util import group_snapshots, padded_history
 
 def question_history(file, history_length, ensure_zeros):
     answer_history_base = pd.io.parsers.read_csv(file)
+    return question_history_pd(answer_history_base, history_length, ensure_zeros)
+
+
+def question_history_pd(answer_history_base, history_length, ensure_zeros):
+    answer_history_base.sort_values(by=['anon_id', 'timestamp'], ascending=[True, True]) # This should already be done but just in case
+
+    history_ids = answer_history_base[['anon_id', 'question_id', 'timestamp', 'correct']]
+
     answer_history_trim = answer_history_base.drop(columns=['question_id', 'timestamp'])
     answer_snapshots = group_snapshots(answer_history_trim, groupby=['anon_id'], snapshot_length=history_length, ensure_zeroes=ensure_zeros)
-    return answer_snapshots
+
+    def pfa_data(snapshot):
+        s = snapshot[0:-1]
+        f = snapshot[-1]
+
+        # correct answers
+        c = s[ (1. == s[:,1]) ]
+        c = c.sum(axis=0)
+        if c.size == 0:
+            c = np.zeros(f.size)
+        c[0] = 1.
+
+        # incorrect answers
+        i = s[ (0. == s[:,1]) ]
+        i = i.sum(axis=0)
+        if i.size == 0:
+            i = np.zeros(f.size)
+
+        return np.array([c, i, f])
+
+    answer_counts = np.array([pfa_data(history) for history in answer_snapshots])
+
+    return history_ids, answer_snapshots, answer_counts
 
 
 def split_snapshot_history_single(data, size):

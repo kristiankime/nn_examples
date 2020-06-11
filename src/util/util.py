@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import pandas as pd
 import re
@@ -79,7 +78,6 @@ def padded_history(history_slice, desired_timesteps=None):
 
 # ======== write numpy array to disk in human readable format
 # https://stackoverflow.com/questions/3685265/how-to-write-a-multidimensional-array-to-a-text-file#3685339
-
 def write_numpy_3d_array_as_txt(data, file='test.txt', fmt='%.18e', delimiter=' ', encoding=None): # header='', footer='', comments='# ',
     # Write the array to disk
     with open(file, 'w') as outfile:

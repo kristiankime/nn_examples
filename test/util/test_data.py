@@ -3,13 +3,15 @@ import os
 import numpy as np
 import pandas as pd
 
+from pandas.testing import assert_frame_equal
+
 from numpy import array
 from numpy.testing import assert_array_equal, assert_almost_equal, assert_equal
 from unittest.mock import MagicMock
 
-from util.util import padded_history, history_snapshots, group_snapshots
+from util.util import padded_history, history_snapshots
 from util.util import write_numpy_3d_array_as_txt, read_numpy_3d_array_from_txt
-from util.data import split_snapshot_history, split_snapshot_history_single, create_embedded_history
+from util.data import question_history_pd, split_snapshot_history, split_snapshot_history_single, create_embedded_history
 
 # print("expected")
 # print(expected)
@@ -26,7 +28,130 @@ class FakeModel:
 
 
 class TestDataMethods(unittest.TestCase):
-    # ====================== split_snapshot_history_single ======================
+    # ====================== question_history ======================
+    def test_question_history__works_h2(self):
+        df = pd.DataFrame({
+            'anon_id'     :[  100,   100,   101,   101],
+            'question_id' :['Q01', 'Q02', 'Q01', 'Q02'],
+            'timestamp'   :[  111,   222,   111,   222],
+            'correct'     :[    1,     0,     0,     1],
+            'skill1'      :[    1,     0,     1,     0],
+            'skill2'      :[    0,     1,     0,     1],
+        })
+
+        history_ids, answer_snapshots, answer_counts = question_history_pd(df, history_length=2, ensure_zeros=None)
+
+        expected_answer_snapshots = array([
+                        [[0., 0., 0.,],
+                         [1., 1., 0.,],],
+
+                        [[1., 1., 0.,],
+                         [0., 0., 1.,],],
+
+                        [[0., 0., 0.,],
+                         [0., 1., 0.,],],
+
+                        [[0., 1., 0.,],
+                         [1., 0., 1.,],]
+                          ]
+                         , dtype=np.float32)
+
+        assert_array_equal(answer_snapshots, expected_answer_snapshots)
+
+        expected_history_ids = pd.DataFrame({
+            'anon_id'     :[  100,   100,   101,   101],
+            'question_id' :['Q01', 'Q02', 'Q01', 'Q02'],
+            'timestamp'   :[  111,   222,   111,   222],
+            'correct'     :[    1,     0,     0,     1],
+        })
+        assert_frame_equal(history_ids, expected_history_ids)
+
+        print(answer_counts)
+
+    def test_question_history__works_h3(self):
+        df = pd.DataFrame({
+            'anon_id'     :[  100,   100,   100,   101,   101,   101],
+            'question_id' :['Q01', 'Q02', 'Q03', 'Q01', 'Q02', 'Q03'],
+            'timestamp'   :[  111,   222,   333,   111,   222,   333],
+            'correct'     :[    1,     0,     0,     0,     1,     1],
+            'skill1'      :[    1,     0,     1,     1,     0,     1],
+            'skill2'      :[    0,     1,     1,     0,     1,     1],
+        })
+
+        history_ids, answer_snapshots, answer_counts = question_history_pd(df, history_length=3, ensure_zeros=None)
+
+        expected_answer_snapshots = array([
+            [[0., 0., 0.,],
+             [0., 0., 0.,],
+             [1., 1., 0.,],],
+
+            [[0., 0., 0.,],
+             [1., 1., 0.,],
+             [0., 0., 1.,],],
+
+            [[1., 1., 0.,],
+             [0., 0., 1.,],
+             [0., 1., 1.,],],
+
+
+            [[0., 0., 0.,],
+             [0., 0., 0.,],
+             [0., 1., 0.,],],
+
+            [[0., 0., 0.,],
+             [0., 1., 0.,],
+             [1., 0., 1.,],],
+
+            [[0., 1., 0.,],
+             [1., 0., 1.,],
+             [1., 1., 1.,],]
+        ]
+            , dtype=np.float32)
+
+        # print(answer_snapshots)
+
+        assert_array_equal(answer_snapshots, expected_answer_snapshots)
+
+        expected_history_ids = pd.DataFrame({
+            'anon_id'     :[  100,   100,   100,   101,   101,   101],
+            'question_id' :['Q01', 'Q02', 'Q03', 'Q01', 'Q02', 'Q03'],
+            'timestamp'   :[  111,   222,   333,   111,   222,   333],
+            'correct'     :[    1,     0,     0,     0,     1,     1],
+        })
+        assert_frame_equal(history_ids, expected_history_ids)
+
+        # print(answer_counts)
+
+        expected_answer_counts = array([
+        [[1., 0., 0.],
+         [0., 0., 0.],
+         [1., 1., 0.]],
+
+        [[1., 1., 0.],
+         [0., 0., 0.],
+         [0., 0., 1.]],
+
+        [[1., 1., 0.],
+         [0., 0., 1.],
+         [0., 1., 1.]],
+        # ==
+        [[1., 0., 0.],
+         [0., 0., 0.],
+         [0., 1., 0.]],
+
+        [[1., 1., 0.],
+         [0., 0., 0.],
+         [1., 0., 1.]],
+
+        [[1., 1., 0.],
+         [1., 0., 1.],
+         [1., 1., 1.]]
+        ])
+
+        assert_array_equal(answer_counts, expected_answer_counts)
+
+
+# ====================== split_snapshot_history_single ======================
     def test_split_snapshot_history_single__works_when_size_is_full_data_set(self):
         data = array([[1., 0., 0.,],
                       [2., 0., 0.,],

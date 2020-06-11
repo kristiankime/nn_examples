@@ -44,9 +44,9 @@ answer_history_train = answer_history_base[answer_history_base['anon_id'].isin(u
 answer_history_validate = answer_history_base[answer_history_base['anon_id'].isin(users_validate)]
 answer_history_test = answer_history_base[answer_history_base['anon_id'].isin(users_test)]
 
-answer_history_train.to_csv(os.path.join('outputs' , 'answers_history_train.csv'), index=False)
-answer_history_validate.to_csv(os.path.join('outputs' , 'answers_history_validate.csv'), index=False)
-answer_history_test.to_csv(os.path.join('outputs' , 'answers_history_test.csv'), index=False)
+answer_history_train.to_csv(os.path.join('outputs', 'answers_history_train.csv'), index=False)
+answer_history_validate.to_csv(os.path.join('outputs', 'answers_history_validate.csv'), index=False)
+answer_history_test.to_csv(os.path.join('outputs', 'answers_history_test.csv'), index=False)
 
 # 10 percent versions
 answer_history_train_10p = answer_history_base[answer_history_base['anon_id'].isin(users_train_10p)]
