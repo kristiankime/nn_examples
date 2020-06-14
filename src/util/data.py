@@ -30,12 +30,12 @@ from util.util import group_snapshots, padded_history
 #     answer_snapshots = group_snapshots(answer_history_n, length=history_length)
 #     return answer_snapshots
 
-def question_history(file, history_length, ensure_zeros):
+def question_history(file, history_length, ensure_zeros) -> (pd.DataFrame, np.ndarray, np.ndarray):
     answer_history_base = pd.io.parsers.read_csv(file)
     return question_history_pd(answer_history_base, history_length, ensure_zeros)
 
 
-def question_history_pd(answer_history_base, history_length, ensure_zeros):
+def question_history_pd(answer_history_base, history_length, ensure_zeros) -> (pd.DataFrame, np.ndarray, np.ndarray):
     answer_history_base.sort_values(by=['anon_id', 'timestamp'], ascending=[True, True]) # This should already be done but just in case
 
     history_ids = answer_history_base[['anon_id', 'question_id', 'timestamp', 'correct']]
