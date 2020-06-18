@@ -66,7 +66,7 @@ class TestDataMethods(unittest.TestCase):
         })
         assert_frame_equal(history_ids, expected_history_ids)
 
-        print(answer_counts)
+        # print(answer_counts)
 
     def test_question_history__works_h3(self):
         df = pd.DataFrame({
