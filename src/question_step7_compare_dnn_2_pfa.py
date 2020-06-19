@@ -37,27 +37,38 @@ pred_epochs = 80
 np.set_printoptions(linewidth=200, threshold=(full_history_length + 1) * model_history_length * feature_num) # unset with np.set_printoptions()
 
 # output location
-# run_dir_load = os.path.join('runs', f'run_embedded_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_epochs}')
-run_dir = os.path.join('runs', f'run_results_pfa')
+# history_ids_test.to_csv(os.path.join('outputs', f'history_test_l{history_length}.csv'), index=False)
 
-if not os.path.exists(run_dir):
-    os.makedirs(run_dir)
+run_dir_dnn_load = os.path.join('runs', f'run_embedded_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_epochs}')
+run_dir_pfa_load = os.path.join('runs', f'run_results_pfa')
 
-coef = pfa_coef_counts(pfa_coef())
+history_ids_validate = pd.read_csv(os.path.join('outputs', f'history_validate_l{full_history_length}.csv'))
+pfa_pred_validate = pd.read_csv(os.path.join(run_dir_pfa_load, f'pfa_pred_vs_actual_validate.csv'))
 
-answer_counts_test = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_test_l{full_history_length}.txt'))
-df_test = pd.DataFrame(
-    data=([ac[2][1], pfa_prediction(ac, coef)] for ac in answer_counts_test),
-    columns=['pfa_cor', 'pfa_pred']
-)
-df_test.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual_test.csv'), index=False)
+history_ids_test = pd.read_csv(os.path.join('outputs', f'history_test_l{full_history_length}.csv'))
+pfa_pred_test = pd.read_csv(os.path.join(run_dir_pfa_load, f'pfa_pred_vs_actual_test.csv'))
 
-# answer_counts_validate = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_validate_l{full_history_length}.txt'))
-# df_validate = pd.DataFrame(
-#     data=([ac[2][1], pfa_prediction(ac, coef)] for ac in answer_counts_validate),
+
+
+# df.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual.csv'), index=False)
+#
+#
+#
+# run_dir = os.path.join('runs', f'run_results_pfa')
+#
+# if not os.path.exists(run_dir):
+#     os.makedirs(run_dir)
+#
+# coef = pfa_coef_counts(pfa_coef())
+#
+# answer_counts = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_validate_l{full_history_length}.txt'))
+#
+# df = pd.DataFrame(
+#     data=([ac[2][1], pfa_prediction(ac, coef)] for ac in answer_counts),
 #     columns=['pfa_cor', 'pfa_pred']
 # )
-# df_validate.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual_validate.csv'), index=False)
+#
+# df.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual.csv'), index=False)
 
 # for ac in answer_counts:
 #     current_answer = ac[2][1]

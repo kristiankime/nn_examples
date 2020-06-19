@@ -55,33 +55,31 @@ def pfa_coef_counts(coef: pd.DataFrame):
 
 def pfa_prediction_m(data_counts, coefs):
     current_answer = data_counts[2:3][0][0]
+    # print('current_answer')
+    # print(current_answer)
 
     skill_mask = data_counts[2:3][0]
-    print('skill_mask')
-    print(skill_mask)
+    # print('skill_mask')
+    # print(skill_mask)
 
     data_masked = np.multiply(data_counts, skill_mask)
-    print('data_masked')
-    print(data_masked)
+    # print('data_masked')
+    # print(data_masked)
 
     # zero columns where the skills are not active
 
     #     m_int <- intercept + (cor * cor_coef) + (inc * inc_coef)
-    print('coefs')
-    print(coefs)
+    # print('coefs')
+    # print(coefs)
     mult = np.multiply(data_masked, coefs)
-    print('mult')
-    print(mult)
+    # print('mult')
+    # print(mult)
 
     m = mult.sum()
     # the above computations accidentally add the current answer and a 1.0 indicating the correct answer row
     m = m - current_answer - 1.0
-    print('m')
-    print(m)
-
-#     m <- m + m_int
-#
-#     CALC$pfa$p_m(m)
+    # print('m')
+    # print(m)
 
     return m
 
