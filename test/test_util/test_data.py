@@ -29,14 +29,14 @@ class FakeModel:
 
 class TestDataMethods(unittest.TestCase):
     # ====================== question_history ======================
-    def test_question_history__works_h2(self):
+    def test_question_history__works_history_len_2(self):
         df = pd.DataFrame({
-            'anon_id'     :[  100,   100,   101,   101],
-            'question_id' :['Q01', 'Q02', 'Q01', 'Q02'],
-            'timestamp'   :[  111,   222,   111,   222],
-            'correct'     :[    1,     0,     0,     1],
-            'skill1'      :[    1,     0,     1,     0],
-            'skill2'      :[    0,     1,     0,     1],
+            'anon_id'     :[  100,   100,      101,   101],
+            'question_id' :['Q01', 'Q02',    'Q01', 'Q02'],
+            'timestamp'   :[  111,   222,      111,   222],
+            'correct'     :[    1,     0,        0,     1],
+            'skill1'      :[    1,     0,        1,     0],
+            'skill2'      :[    0,     1,        0,     1],
         })
 
         history_ids, answer_snapshots, answer_counts = question_history_pd(df, history_length=2, ensure_zeros=None)
@@ -67,15 +67,34 @@ class TestDataMethods(unittest.TestCase):
         assert_frame_equal(history_ids, expected_history_ids)
 
         # print(answer_counts)
+        expected_answer_counts = array([
+            [[1., 0., 0.],
+             [0., 0., 0.],
+             [1., 1., 0.]],
 
-    def test_question_history__works_h3(self):
+            [[1., 1., 0.],
+             [0., 0., 0.],
+             [0., 0., 1.]],
+            # ==
+            [[1., 0., 0.],
+             [0., 0., 0.],
+             [0., 1., 0.]],
+
+            [[1., 0., 0.],
+             [0., 1., 0.],
+             [1., 0., 1.]],
+        ])
+
+        assert_array_equal(answer_counts, expected_answer_counts)
+
+    def test_question_history__works_history_len_3(self):
         df = pd.DataFrame({
-            'anon_id'     :[  100,   100,   100,   101,   101,   101],
-            'question_id' :['Q01', 'Q02', 'Q03', 'Q01', 'Q02', 'Q03'],
-            'timestamp'   :[  111,   222,   333,   111,   222,   333],
-            'correct'     :[    1,     0,     0,     0,     1,     1],
-            'skill1'      :[    1,     0,     1,     1,     0,     1],
-            'skill2'      :[    0,     1,     1,     0,     1,     1],
+            'anon_id'     :[  100,   100,   100,        101,   101,   101],
+            'question_id' :['Q01', 'Q02', 'Q03',      'Q01', 'Q02', 'Q03'],
+            'timestamp'   :[  111,   222,   333,        111,   222,   333],
+            'correct'     :[    1,     0,     0,          0,     1,     1],
+            'skill1'      :[    1,     0,     1,          1,     0,     1],
+            'skill2'      :[    0,     1,     1,          0,     1,     1],
         })
 
         history_ids, answer_snapshots, answer_counts = question_history_pd(df, history_length=3, ensure_zeros=None)
@@ -139,12 +158,12 @@ class TestDataMethods(unittest.TestCase):
          [0., 0., 0.],
          [0., 1., 0.]],
 
-        [[1., 1., 0.],
-         [0., 0., 0.],
+        [[1., 0., 0.],
+         [0., 1., 0.],
          [1., 0., 1.]],
 
-        [[1., 1., 0.],
-         [1., 0., 1.],
+        [[1., 0., 1.],
+         [0., 1., 0.],
          [1., 1., 1.]]
         ])
 

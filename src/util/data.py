@@ -47,20 +47,21 @@ def question_history_pd(answer_history_base, history_length, ensure_zeros) -> (p
         s = snapshot[0:-1]
         f = snapshot[-1]
 
-        # correct answers
-        c = s[ (1. == s[:,1]) ]
+        # count correct answers by skill
+        c = s[ (1. == s[:,0]) ]
         c = c.sum(axis=0)
         if c.size == 0:
             c = np.zeros(f.size)
         c[0] = 1.
 
-        # incorrect answers
-        i = s[ (0. == s[:,1]) ]
+        # count incorrect answers by skill
+        i = s[ (0. == s[:,0]) ]
         i = i.sum(axis=0)
         if i.size == 0:
             i = np.zeros(f.size)
 
-        return np.array([c, i, f])
+        ret = np.array([c, i, f])
+        return ret
 
     answer_counts = np.array([pfa_data(history) for history in answer_snapshots])
 
