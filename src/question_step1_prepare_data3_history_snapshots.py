@@ -19,7 +19,7 @@ ensure_zeros = None
 history_ids_train, snapshots_train, answer_counts_train = question_history(os.path.join('outputs', 'answers_history_train.csv'), history_length=history_length, ensure_zeros=ensure_zeros)
 history_ids_train.to_csv(os.path.join('outputs', f'history_train_l{history_length}.csv'), index=False)
 write_numpy_3d_array_as_txt(snapshots_train, os.path.join('outputs', f'snapshot_train_l{history_length}.txt'), fmt='%.0f')
-write_numpy_3d_array_as_txt(answer_counts_train, os.path.join('outputs', f'answer_counts_train_l{history_length}_10p.txt'), fmt='%.0f')
+write_numpy_3d_array_as_txt(answer_counts_train, os.path.join('outputs', f'answer_counts_train_l{history_length}.txt'), fmt='%.0f')
 
 history_ids_validate, snapshots_validate, answer_counts_validate = question_history(os.path.join('outputs', 'answers_history_validate.csv'), history_length=history_length, ensure_zeros=ensure_zeros)
 history_ids_validate.to_csv(os.path.join('outputs', f'history_validate_l{history_length}.csv'), index=False)
