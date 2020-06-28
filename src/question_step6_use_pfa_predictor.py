@@ -47,17 +47,17 @@ coef = pfa_coef_counts(pfa_coef())
 
 answer_counts_test = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_test_l{full_history_length}.txt'))
 df_test = pd.DataFrame(
-    data=([ac[2][1], pfa_prediction(ac, coef)] for ac in answer_counts_test),
+    data=([ac[2][0], pfa_prediction(ac, coef)] for ac in answer_counts_test),
     columns=['pfa_cor', 'pfa_pred']
 )
 df_test.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual_test.csv'), index=False)
 
-# answer_counts_validate = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_validate_l{full_history_length}.txt'))
-# df_validate = pd.DataFrame(
-#     data=([ac[2][1], pfa_prediction(ac, coef)] for ac in answer_counts_validate),
-#     columns=['pfa_cor', 'pfa_pred']
-# )
-# df_validate.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual_validate.csv'), index=False)
+answer_counts_validate = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_validate_l{full_history_length}.txt'))
+df_validate = pd.DataFrame(
+    data=([ac[2][0], pfa_prediction(ac, coef)] for ac in answer_counts_validate),
+    columns=['pfa_cor', 'pfa_pred']
+)
+df_validate.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual_validate.csv'), index=False)
 
 # for ac in answer_counts:
 #     current_answer = ac[2][1]

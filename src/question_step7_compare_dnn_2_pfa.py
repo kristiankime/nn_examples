@@ -38,15 +38,35 @@ np.set_printoptions(linewidth=200, threshold=(full_history_length + 1) * model_h
 
 # output location
 # history_ids_test.to_csv(os.path.join('outputs', f'history_test_l{history_length}.csv'), index=False)
+result_dir = os.path.join('results', f'pfa_vs_dnn')
 
-run_dir_dnn_load = os.path.join('runs', f'run_embedded_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_epochs}')
+if not os.path.exists(result_dir):
+    os.makedirs(result_dir)
+
+run_dir_dnn_load = os.path.join('runs', f'run_results_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_epochs}')
 run_dir_pfa_load = os.path.join('runs', f'run_results_pfa')
 
 history_ids_validate = pd.read_csv(os.path.join('outputs', f'history_validate_l{full_history_length}.csv'))
 pfa_pred_validate = pd.read_csv(os.path.join(run_dir_pfa_load, f'pfa_pred_vs_actual_validate.csv'))
+dnn_pred_validate = pd.read_csv(os.path.join(run_dir_dnn_load, f'pred_vs_actual.csv'))
 
-history_ids_test = pd.read_csv(os.path.join('outputs', f'history_test_l{full_history_length}.csv'))
-pfa_pred_test = pd.read_csv(os.path.join(run_dir_pfa_load, f'pfa_pred_vs_actual_test.csv'))
+h = history_ids_validate.iloc[1:].reset_index()
+p = pfa_pred_validate.iloc[1:].reset_index()
+d = dnn_pred_validate.rename(columns={'prob': 'dnn_pred', 'correct': 'dnn_cor'})
+
+pfa_vs_dnn = pd.concat([h, p, d], axis=1)
+
+pfa_vs_dnn.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_validate.csv'), index=False)
+
+# TODO total counts for counts
+# pfa_vs_dnn.groupby(by="anon_id").
+
+# pred_vs_actual_df.to_csv(os.path.join(run_dir, f'pred_vs_actual.csv'), index=False)
+# pred_vs_actual_df.to_csv(os.path.join(run_dir, f'pred_vs_actual.csv'), index=False)
+
+
+# history_ids_test = pd.read_csv(os.path.join('outputs', f'history_test_l{full_history_length}.csv'))
+# pfa_pred_test = pd.read_csv(os.path.join(run_dir_pfa_load, f'pfa_pred_vs_actual_test.csv'))
 
 
 
