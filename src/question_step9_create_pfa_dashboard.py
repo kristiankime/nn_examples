@@ -15,7 +15,7 @@ from util.logs import stdout_add_file, stdout_reset
 from util.util import group_snapshots, read_numpy_3d_array_from_txt
 from models import lstm_autoencoder
 from util.data import split_snapshot_history_single, split_snapshot_history
-from util.pfa import pfa_prediction, pfa_coef_counts, pfa_coef
+from util.pfa import pfa_prediction, pfa_coef_counts, pfa_coef, pfa_dashboard
 
 start = datetime.datetime.now()
 # set the seed for reproducibility
@@ -28,7 +28,8 @@ full_history_length = 243
 model_history_length = 13 # 243 possible but can't do all of them sometimes see this https://github.com/keras-team/keras/issues/4563 and sometimes the results are just bad
 diff_num = 5
 skill_num = 21
-feature_num = 1 + (diff_num + skill_num) # <correct or not> + <26 features>
+diff_and_skill_num = diff_num + skill_num
+feature_num = 1 + diff_and_skill_num # <correct or not> + <26 features>
 # lstm_layer_size = 80
 # lstm_epochs = 245
 
@@ -40,7 +41,7 @@ np.set_printoptions(linewidth=200, threshold=(full_history_length + 1) * model_h
 
 # output location
 # run_dir_load = os.path.join('runs', f'run_embedded_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_epochs}')
-run_dir = os.path.join('runs', f'run_results_pfa')
+run_dir = os.path.join('dashboards', f'pfa_dashboard')
 
 if not os.path.exists(run_dir):
     os.makedirs(run_dir)
@@ -48,18 +49,26 @@ if not os.path.exists(run_dir):
 coef = pfa_coef_counts(pfa_coef())
 
 answer_counts_test = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_test_l{full_history_length}.txt'))
-df_test = pd.DataFrame(
-    data=([ac[2][0], pfa_prediction(ac, coef)] for ac in answer_counts_test),
-    columns=['pfa_cor', 'pfa_pred']
-)
-df_test.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual_test.csv'), index=False)
 
-answer_counts_validate = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_validate_l{full_history_length}.txt'))
-df_validate = pd.DataFrame(
-    data=([ac[2][0], pfa_prediction(ac, coef)] for ac in answer_counts_validate),
-    columns=['pfa_cor', 'pfa_pred']
-)
-df_validate.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual_validate.csv'), index=False)
+answer_counts_test_dashboard = [np.concatenate((np.array([ac[2][0]]), pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1)))
+                                for ac in answer_counts_test]
+np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none.csv'), answer_counts_test_dashboard, fmt='%1.4f', delimiter=",")
+
+
+# df_test = pd.DataFrame(
+#     data=( ),
+#     columns=['pfa_cor', 'pfa_pred']
+# )
+# df_test.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual_test.csv'), index=False)
+
+
+
+# answer_counts_validate = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_validate_l{full_history_length}.txt'))
+# df_validate = pd.DataFrame(
+#     data=([ac[2][0], pfa_prediction(ac, coef)] for ac in answer_counts_validate),
+#     columns=['pfa_cor', 'pfa_pred']
+# )
+# df_validate.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual_validate.csv'), index=False)
 
 # for ac in answer_counts:
 #     current_answer = ac[2][1]

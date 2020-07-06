@@ -122,9 +122,14 @@ class TestDataMethods(unittest.TestCase):
         expected = array([1., 0.,    0., 0., 1.])
         assert_equal(actual, expected)
 
-    def test_one_hot_skills__no_difficulty(self):
+    def test_one_hot_skills__has_diff_none_selected(self):
         actual = one_hot_skills(num_diffs=2, num_skills=3, diff_ind=-1, skill_ind=1)
         expected = array([0., 0.,    0., 1., 0.])
+        assert_equal(actual, expected)
+
+    def test_one_hot_skills__no_difficulty_levels(self):
+        actual = one_hot_skills(num_diffs=0, num_skills=3, diff_ind=-1, skill_ind=1)
+        expected = array([0., 1., 0.])
         assert_equal(actual, expected)
 
     def test_pfa_dashboard__no_using_diff(self):
