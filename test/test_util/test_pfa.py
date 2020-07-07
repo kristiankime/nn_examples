@@ -178,3 +178,13 @@ class TestDataMethods(unittest.TestCase):
             pred(data, coef, num_diffs=2, num_skills=3, diff_ind=1, skill_ind=2)
         ])
         assert_equal(actual, expected)
+
+    # def test_print_pfa(self):
+    #     coef = pfa_coef_counts(pfa_coef())
+    #     data = array(
+    #         [[1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
+    #          [0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.],
+    #          [1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.,  1.]],) # This row shouldn't matter
+    #     dashboard = pfa_dashboard(data_counts=data, coef_counts=coef, num_diffs=0, num_skills=26, diff_ind=-1)
+    #     print(dashboard)
+
