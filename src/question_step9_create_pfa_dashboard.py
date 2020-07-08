@@ -50,9 +50,35 @@ coef = pfa_coef_counts(pfa_coef())
 
 answer_counts_test = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_test_l{full_history_length}.txt'))
 
-answer_counts_test_dashboard = [np.concatenate((np.array([ac[2][0]]), pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1)))
-                                for ac in answer_counts_test]
-np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none.csv'), answer_counts_test_dashboard, fmt='%1.4f', delimiter=",")
+# # =====
+# answer_counts_test_dashboard = [np.concatenate((np.array([ac[2][0]]), pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1)))
+#                                 for ac in answer_counts_test]
+# np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none.csv'), answer_counts_test_dashboard, fmt='%1.4f', delimiter=",")
+
+# ========= Dashboard and current question
+# answer_counts_test_dashboard = [
+#     np.concatenate(
+#         (np.array([ac[2][0]]), pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1))
+#     )
+#     for ac in answer_counts_test]
+
+answer_counts_test_dashboard = [
+    np.concatenate(
+        (pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1), np.array(ac[2][1:]))
+    )
+    for ac in answer_counts_test]
+
+# answer_counts_test_dashboard = [np.concatenate(
+#                                     pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1),
+#                                     np.array([ac[2][0]])
+#                                 )
+#                                 for ac in answer_counts_test]
+np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_test.csv'), answer_counts_test_dashboard, fmt='%1.4f', delimiter=",")
+
+# ========= answer / label for current question
+answer_counts_test_dashboard_answer = [np.array([ac[2][0]]) for ac in answer_counts_test]
+np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_test_answers.csv'), answer_counts_test_dashboard_answer, fmt='%1.4f', delimiter=",")
+
 
 
 # df_test = pd.DataFrame(
