@@ -20,6 +20,7 @@ pip install pydot
 pip install graphviz
 pip install pandas
 pip install matplotlib
+pip install joblib
 
 deactivate
 

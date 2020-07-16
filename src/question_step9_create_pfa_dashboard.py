@@ -48,31 +48,31 @@ if not os.path.exists(run_dir):
 
 coef = pfa_coef_counts(pfa_coef())
 
-answer_counts_test = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_test_l{full_history_length}.txt'))
-
-# # =====
-# answer_counts_test_dashboard = [np.concatenate((np.array([ac[2][0]]), pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1)))
-#                                 for ac in answer_counts_test]
-# np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none.csv'), answer_counts_test_dashboard, fmt='%1.4f', delimiter=",")
+# ================= TRAIN ===============
+answer_counts_test = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_train_l{full_history_length}.txt'))
 
 # ========= Dashboard and current question
-# answer_counts_test_dashboard = [
-#     np.concatenate(
-#         (np.array([ac[2][0]]), pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1))
-#     )
-#     for ac in answer_counts_test]
+answer_counts_test_dashboard = [ np.concatenate(
+    (pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1), np.array(ac[2][1:]))
+) for ac in answer_counts_test]
 
-answer_counts_test_dashboard = [
-    np.concatenate(
+np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_train.csv'), answer_counts_test_dashboard, fmt='%1.4f', delimiter=",")
+
+# ========= answer / label for current question
+answer_counts_test_dashboard_answer = [np.array([ac[2][0]]) for ac in answer_counts_test]
+np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_train_answers.csv'), answer_counts_test_dashboard_answer, fmt='%1.4f', delimiter=",")
+
+
+
+
+# ================= TEST ===============
+answer_counts_test = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_test_l{full_history_length}.txt'))
+
+# ========= Dashboard and current question
+answer_counts_test_dashboard = [ np.concatenate(
         (pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1), np.array(ac[2][1:]))
-    )
-    for ac in answer_counts_test]
+    ) for ac in answer_counts_test]
 
-# answer_counts_test_dashboard = [np.concatenate(
-#                                     pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1),
-#                                     np.array([ac[2][0]])
-#                                 )
-#                                 for ac in answer_counts_test]
 np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_test.csv'), answer_counts_test_dashboard, fmt='%1.4f', delimiter=",")
 
 # ========= answer / label for current question
@@ -81,65 +81,14 @@ np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_test_answers.csv'), a
 
 
 
-# df_test = pd.DataFrame(
-#     data=( ),
-#     columns=['pfa_cor', 'pfa_pred']
-# )
-# df_test.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual_test.csv'), index=False)
 
+# =========== End Reporting ===========
+end = datetime.datetime.now()
+difference = end - start
 
+print(f'start      {start}')
+print(f'end        {end}')
+print(f'difference {difference}')
 
-# answer_counts_validate = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_validate_l{full_history_length}.txt'))
-# df_validate = pd.DataFrame(
-#     data=([ac[2][0], pfa_prediction(ac, coef)] for ac in answer_counts_validate),
-#     columns=['pfa_cor', 'pfa_pred']
-# )
-# df_validate.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual_validate.csv'), index=False)
+stdout_reset()
 
-# for ac in answer_counts:
-#     current_answer = ac[2][1]
-#     prob = pfa_prediction(ac)
-
-
-
-# #
-# # stdout_add_file(os.path.join(run_dir, 'log.txt'))
-# #
-# snapshots_validate_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_validate_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip")
-# snapshots_validate_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_validate_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip")
-#
-# # =========== Load the prediction model ===========
-#
-# # load model
-# # Recreate the exact same model purely from the file
-# model = keras.models.load_model(os.path.join(run_dir_load, f'model.h5'))
-#
-# # =========== Probability version of the model ===========
-# probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
-#
-# # Get predictions from the model
-# predictions = probability_model.predict(snapshots_validate_embedded)
-# correct_prediction = predictions[:,1].transpose()
-#
-# # get the actual outcome
-# actual_outcome = snapshots_validate_labels.values[:,0].transpose()
-#
-# # concatenate them together and save to disk
-# pred_vs_actual = np.column_stack((correct_prediction, actual_outcome))
-# pred_vs_actual_df = pd.DataFrame(data=pred_vs_actual, columns=['prob', 'correct'])
-# pred_vs_actual_df.to_csv(os.path.join(run_dir, f'pred_vs_actual.csv'), index=False)
-
-# # np.argmax(predictions[0]) # pick the highest chance
-# # test_labels[0]
-#
-#
-# # =========== End Reporting ===========
-# end = datetime.datetime.now()
-# difference = end - start
-#
-# print(f'start      {start}')
-# print(f'end        {end}')
-# print(f'difference {difference}')
-#
-# stdout_reset()
-#
