@@ -113,3 +113,33 @@ def read_numpy_3d_array_from_txt(file='test.txt'):
     # going back to 3D is easy if we know the original shape of the array
     new_data = new_data.reshape((d1, d2, d3))
     return new_data
+
+
+def pick_1_in_group(df: pd.DataFrame, group_col):
+    def callback(x):
+        # print('===== x =====')
+        # print(x)
+        size = len(x)
+        ret = [0] * size
+        pick = np.random.randint(0, size)
+        ret[pick] = 1
+        # print('===== ret =====')
+        # print(ret)
+        x['seq'] = ret
+        # print('===== x =====')
+        # print(x)
+        return x
+
+    # def callback(x):
+    #     x['seq'] = range(1, x.shape[0] + 1)
+    #     return x
+    df = df.groupby(group_col).apply(callback)
+    return df
+    # def f(x):
+    #     size = len(x)
+    #     ret = pd.Series(0,index=range(size))
+    #     pick = np.random.randint(0, size)
+    #     ret[pick] = 1
+    #     return ret
+    #
+    # return data.groupby(group_col).apply(f)

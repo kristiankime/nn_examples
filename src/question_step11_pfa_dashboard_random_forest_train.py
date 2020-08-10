@@ -16,6 +16,8 @@ from sklearn.ensemble import RandomForestClassifier
 import joblib
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import GridSearchCV
+from sklearn import linear_model
+from sklearn.metrics import mean_squared_error, r2_score
 
 from util.logs import stdout_add_file, stdout_reset
 
@@ -120,6 +122,7 @@ pfa_dashboard_diff_none_train_gb['rate'] = pfa_dashboard_diff_none_train_gb['bin
 pfa_dashboard_diff_none_train_gb['expected'] = pfa_dashboard_diff_none_train_gb['count'] * pfa_dashboard_diff_none_train_gb['rate']
 pfa_dashboard_diff_none_train_gb['actual_rate'] = pfa_dashboard_diff_none_train_gb['actual'] / pfa_dashboard_diff_none_train_gb['count']
 
+R = pfa_dashboard_diff_none_train_gb['rate']
 O = pfa_dashboard_diff_none_train_gb['actual']
 E = pfa_dashboard_diff_none_train_gb['expected']
 OE = O - E
@@ -140,6 +143,20 @@ pfa_dashboard_diff_none_train_gb_nn = pfa_dashboard_diff_none_train_gb.dropna()
 # c, p = st.chisquare(observed_values, expected_values, ddof=len(param))
 # https://www.gigacalculator.com/calculators/chi-square-to-p-value-calculator.php
 c, p = st.chisquare(pfa_dashboard_diff_none_train_gb_nn['actual_rate'], pfa_dashboard_diff_none_train_gb_nn['expected'], ddof=len(pfa_dashboard_diff_none_train_gb_nn.index)-1)
+
+# Run a G-test goodness of fit
+# http://www.biostathandbook.com/gtestgof.html
+
+# Cramér's V
+# https://en.wikipedia.org/wiki/Cram%C3%A9r%27s_V
+
+R = np.reshape(pfa_dashboard_diff_none_train_gb_nn['rate'].to_numpy(), (-1, 1))
+A = pfa_dashboard_diff_none_train_gb_nn['actual_rate']
+
+# Create linear regression object
+regr = linear_model.LinearRegression() # https://scikit-learn.org/stable/auto_examples/linear_model/plot_ols.html#sphx-glr-auto-examples-linear-model-plot-ols-py
+# Train the model using the training sets
+regr.fit(R, A)
 
 # pfa_dashboard_diff_none_train_stats.groupby(by=['binned_ind']).apply(lambda g: g.actual.sum())
 # pfa_dashboard_diff_none_train_stats.groupby(by=['binned_ind']).apply(lambda g: [g.actual.sum(), g.pred.sum()])

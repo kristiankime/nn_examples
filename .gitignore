@@ -8,6 +8,7 @@ outputs_*
 data
 test_data
 dashboards
+results
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

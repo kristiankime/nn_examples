@@ -8,6 +8,7 @@ from numpy.testing import assert_array_equal
 
 from util.util import padded_history, history_snapshots, group_snapshots
 from util.util import write_numpy_3d_array_as_txt, read_numpy_3d_array_from_txt
+from util.util import pick_1_in_group
 
 
 # print("expected")
@@ -403,3 +404,15 @@ class TestUtilMethods(unittest.TestCase):
 
         result = read_numpy_3d_array_from_txt('../../test_data/test_write_numpy_3d_array_as_txt_and_read_numpy_3d_array_from_txt.txt')
         assert_array_equal(result, data)
+
+    # ======== pick_1_in_group =========
+    def test_pick_1_in_group(self):
+        data = [[1., ],
+                [1., ],
+                [0., ],
+                [0., ]]
+        df = pd.DataFrame(data, columns = ['c1'])
+
+        res = pick_1_in_group(df, 'c1')
+        print(res)
+        assert True
