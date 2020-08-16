@@ -115,17 +115,17 @@ def read_numpy_3d_array_from_txt(file='test.txt'):
     return new_data
 
 
-def pick_1_in_group(df: pd.DataFrame, group_col):
+def pick_1_in_group(df: pd.DataFrame, group_col, pick1col='seq'):
     def callback(x):
         # print('===== x =====')
         # print(x)
         size = len(x)
-        ret = [0] * size
+        ret = [False] * size
         pick = np.random.randint(0, size)
-        ret[pick] = 1
+        ret[pick] = True
         # print('===== ret =====')
         # print(ret)
-        x['seq'] = ret
+        x[pick1col] = ret
         # print('===== x =====')
         # print(x)
         return x
