@@ -41,7 +41,7 @@ np.set_printoptions(linewidth=200, threshold=(full_history_length + 1) * model_h
 
 # output location
 # run_dir_load = os.path.join('runs', f'run_embedded_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_epochs}')
-run_dir = os.path.join('dashboards', f'pfa_dashboard')
+run_dir = os.path.join('dashboards', f'pfa_dashboard', 'pick1')
 
 if not os.path.exists(run_dir):
     os.makedirs(run_dir)
@@ -50,52 +50,37 @@ stdout_add_file(os.path.join(run_dir, 'log.txt'))
 
 coef = pfa_coef_counts(pfa_coef())
 
-# ================= TRAIN ===============
-print(f"loading train data")
-answer_counts_train = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_train_l{full_history_length}.txt'))
-# ========= Dashboard and current question
-print(f"computing dashboard")
-answer_counts_train_dashboard = [ np.concatenate(
-    (pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1), np.array(ac[2][1:]))
-) for ac in answer_counts_train]
-print(f"saving dashboard")
-np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_train.csv'), answer_counts_train_dashboard, fmt='%1.4f', delimiter=",")
-# ========= answer / label for current question
-print(f"saving answers")
-answer_counts_train_dashboard_answer = [np.array([ac[2][0]]) for ac in answer_counts_train]
-np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_train_answers.csv'), answer_counts_train_dashboard_answer, fmt='%1.4f', delimiter=",")
-
 
 # ================= VALIDATE ===============
 print(f"loading validate data")
-answer_counts_validate = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_validate_l{full_history_length}.txt'))
+answer_counts_validate = read_numpy_3d_array_from_txt(os.path.join('outputs', 'pick1', f'answer_counts_validate_l{full_history_length}_s1.txt'))
 # ========= Dashboard and current question
 print(f"computing dashboard")
 answer_counts_validate_dashboard = [ np.concatenate(
     (pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1), np.array(ac[2][1:]))
 ) for ac in answer_counts_validate]
 print(f"saving dashboard")
-np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_validate.csv'), answer_counts_validate_dashboard, fmt='%1.4f', delimiter=",")
+np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_validate_s1.csv'), answer_counts_validate_dashboard, fmt='%1.4f', delimiter=",")
 # ========= answer / label for current question
 print(f"saving answers")
 answer_counts_validate_dashboard_answer = [np.array([ac[2][0]]) for ac in answer_counts_validate]
-np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_validate_answers.csv'), answer_counts_validate_dashboard_answer, fmt='%1.4f', delimiter=",")
+np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_validate_answers_s1.csv'), answer_counts_validate_dashboard_answer, fmt='%1.4f', delimiter=",")
 
 
 # ================= TEST ===============
 print(f"loading test data")
-answer_counts_test = read_numpy_3d_array_from_txt(os.path.join('outputs', f'answer_counts_test_l{full_history_length}.txt'))
+answer_counts_test = read_numpy_3d_array_from_txt(os.path.join('outputs', 'pick1', f'answer_counts_test_l{full_history_length}_s1.txt'))
 # ========= Dashboard and current question
 print(f"computing dashboard")
 answer_counts_test_dashboard = [ np.concatenate(
-        (pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1), np.array(ac[2][1:]))
-    ) for ac in answer_counts_test]
+    (pfa_dashboard(ac, coef, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1), np.array(ac[2][1:]))
+) for ac in answer_counts_test]
 print(f"saving dashboard")
-np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_test.csv'), answer_counts_test_dashboard, fmt='%1.4f', delimiter=",")
+np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_test_s1.csv'), answer_counts_test_dashboard, fmt='%1.4f', delimiter=",")
 # ========= answer / label for current question
 print(f"saving answers")
 answer_counts_test_dashboard_answer = [np.array([ac[2][0]]) for ac in answer_counts_test]
-np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_test_answers.csv'), answer_counts_test_dashboard_answer, fmt='%1.4f', delimiter=",")
+np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_test_answers_s1.csv'), answer_counts_test_dashboard_answer, fmt='%1.4f', delimiter=",")
 
 
 
