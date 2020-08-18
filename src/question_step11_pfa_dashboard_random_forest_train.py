@@ -83,12 +83,19 @@ param_grid = {
 grid_clf = GridSearchCV(clf, param_grid, cv=10)
 grid_clf.fit(pfa_dashboard_diff_none_train, pfa_dashboard_diff_none_train_answers)
 
-# You can then get the best model using
-grid_clf.best_estimator_  # RandomForestClassifier(max_depth=9, n_estimators=20, random_state=23)
-# and the best parameters using
-grid_clf.best_params_  # {'max_depth': 9, 'n_estimators': 20}
-# Similarly you can get the grid scores using
-grid_clf.cv_results_
+# # You can then get the best model using
+# grid_clf.best_estimator_  # RandomForestClassifier(max_depth=9, n_estimators=20, random_state=23)
+# # and the best parameters using
+# grid_clf.best_params_  # {'max_depth': 9, 'n_estimators': 20}
+# # Similarly you can get the grid scores using
+# grid_clf.cv_results_
+
+joblib.dump(grid_clf.best_estimator_, os.path.join(run_dir, 'random_forest_best.dump'), compress=3)
+
+
+
+# ============ move to another file?
+classifier: RandomForestClassifier = joblib.load(os.path.join(run_dir, 'random_forest_best.dump'))
 
 # 10-Fold Cross validation
 # print(np.mean(cross_val_score(clf, pfa_dashboard_diff_none_train, pfa_dashboard_diff_none_train_answers, cv=10)))
@@ -97,9 +104,9 @@ bins = list(drange_inc(0, 1, '0.05')) # 5% point bin size
 bin_labels = list(range(1, 21))
 
 # =======================
-# Create and store Training Set data
-predictions_train = grid_clf.best_estimator_.predict(pfa_dashboard_diff_none_train)
-predicted_probs_train = grid_clf.best_estimator_.predict_proba(pfa_dashboard_diff_none_train)
+# Create and store Training Vs Actual Comparison data
+predictions_train = classifier.predict(pfa_dashboard_diff_none_train)
+predicted_probs_train = classifier.predict_proba(pfa_dashboard_diff_none_train)
 predicted_probs_0_train = [item[0] for item in predicted_probs_train]
 predicted_probs_1_train = [item[1] for item in predicted_probs_train]
 
@@ -121,77 +128,55 @@ pfa_dashboard_diff_none_train_gb = pfa_dashboard_diff_none_train_stats.groupby(b
 pfa_dashboard_diff_none_train_gb['rate'] = pfa_dashboard_diff_none_train_gb['binned_range'].apply(lambda x: x.right)
 pfa_dashboard_diff_none_train_gb['expected'] = pfa_dashboard_diff_none_train_gb['count'] * pfa_dashboard_diff_none_train_gb['rate']
 pfa_dashboard_diff_none_train_gb['actual_rate'] = pfa_dashboard_diff_none_train_gb['actual'] / pfa_dashboard_diff_none_train_gb['count']
-
-R = pfa_dashboard_diff_none_train_gb['rate']
-O = pfa_dashboard_diff_none_train_gb['actual']
-E = pfa_dashboard_diff_none_train_gb['expected']
-OE = O - E
-C2 = (OE * OE) / E
-
+# R = pfa_dashboard_diff_none_train_gb['rate']
+# O = pfa_dashboard_diff_none_train_gb['actual']
+# E = pfa_dashboard_diff_none_train_gb['expected']
+# OE = O - E
+# C2 = (OE * OE) / E
 # pfa_dashboard_diff_none_train_gb.replace(np.nan, 0, inplace=True)
 pfa_dashboard_diff_none_train_gb.to_csv(os.path.join(run_dir, 'random_forest_train_outcome_gb.csv'), index=False)
-
 
 
 plt.plot(pfa_dashboard_diff_none_train_gb['rate'], pfa_dashboard_diff_none_train_gb['actual_rate'], '-o')
 plt.plot(pfa_dashboard_diff_none_train_gb['rate'], pfa_dashboard_diff_none_train_gb['rate'], '-o')
 plt.savefig(os.path.join(run_dir, 'random_forest_train_outcome_gb.pdf'), bbox_inches='tight')
-
-pfa_dashboard_diff_none_train_gb_nn = pfa_dashboard_diff_none_train_gb.dropna()
-
-# https://stackoverflow.com/questions/51894150/python-chi-square-goodness-of-fit-test-to-get-the-best-distribution
-# c, p = st.chisquare(observed_values, expected_values, ddof=len(param))
-# https://www.gigacalculator.com/calculators/chi-square-to-p-value-calculator.php
-c, p = st.chisquare(pfa_dashboard_diff_none_train_gb_nn['actual_rate'], pfa_dashboard_diff_none_train_gb_nn['expected'], ddof=len(pfa_dashboard_diff_none_train_gb_nn.index)-1)
-
-# Run a G-test goodness of fit
-# http://www.biostathandbook.com/gtestgof.html
-
-# Cramér's V
-# https://en.wikipedia.org/wiki/Cram%C3%A9r%27s_V
-
-R = np.reshape(pfa_dashboard_diff_none_train_gb_nn['rate'].to_numpy(), (-1, 1))
-A = pfa_dashboard_diff_none_train_gb_nn['actual_rate']
-
-# Create linear regression object
-regr = linear_model.LinearRegression() # https://scikit-learn.org/stable/auto_examples/linear_model/plot_ols.html#sphx-glr-auto-examples-linear-model-plot-ols-py
-# Train the model using the training sets
-regr.fit(R, A)
-
-# pfa_dashboard_diff_none_train_stats.groupby(by=['binned_ind']).apply(lambda g: g.actual.sum())
-# pfa_dashboard_diff_none_train_stats.groupby(by=['binned_ind']).apply(lambda g: [g.actual.sum(), g.pred.sum()])
-# pfa_dashboard_diff_none_train_stats.groupby(by=['binned_ind']).apply(lambda g: pd.Series(g.actual.sum(), g.pred.sum()))
-
-# accuracy_train = (pfa_dashboard_diff_none_train_stats['actual'] == pfa_dashboard_diff_none_train_stats['pred'])
-# accuracy_train.sum() / len(accuracy_train)
+#
+# pfa_dashboard_diff_none_train_gb_nn = pfa_dashboard_diff_none_train_gb.dropna()
+#
+# # # https://stackoverflow.com/questions/51894150/python-chi-square-goodness-of-fit-test-to-get-the-best-distribution
+# # # c, p = st.chisquare(observed_values, expected_values, ddof=len(param))
+# # # https://www.gigacalculator.com/calculators/chi-square-to-p-value-calculator.php
+# # c, p = st.chisquare(pfa_dashboard_diff_none_train_gb_nn['actual_rate'], pfa_dashboard_diff_none_train_gb_nn['expected'], ddof=len(pfa_dashboard_diff_none_train_gb_nn.index)-1)
 
 
-# =======================
-# Create and store Test Set data
-pfa_dashboard_diff_none_test = pd.io.parsers.read_csv(os.path.join('dashboards', f'pfa_dashboard', f'pfa_dashboard_diff_none_test.csv'), delimiter=",", header=None)
-pfa_dashboard_diff_none_test_answers = pd.io.parsers.read_csv(os.path.join('dashboards', f'pfa_dashboard', f'pfa_dashboard_diff_none_test_answers.csv'), delimiter=",", header=None)
 
-# clf2 = RandomForestClassifier(random_state=23)
-# clf2.fit(pfa_dashboard_diff_none_test, pfa_dashboard_diff_none_test_answers)
-
-predictions_test = grid_clf.best_estimator_.predict(pfa_dashboard_diff_none_test)
-predicted_probs_test = grid_clf.best_estimator_.predict_proba(pfa_dashboard_diff_none_test)
-predicted_probs_0_test = [item[0] for item in predicted_probs_test]
-predicted_probs_1_test = [item[1] for item in predicted_probs_test]
-
-
-pfa_dashboard_diff_none_test_stats = pfa_dashboard_diff_none_test.copy()
-pfa_dashboard_diff_none_test_stats['actual'] = pfa_dashboard_diff_none_test_answers
-pfa_dashboard_diff_none_test_stats['pred'] = predictions_test
-pfa_dashboard_diff_none_test_stats['probs_0'] = predicted_probs_0_test
-pfa_dashboard_diff_none_test_stats['probs_1'] = predicted_probs_1_test
-pfa_dashboard_diff_none_test_stats['accuracy'] = (pfa_dashboard_diff_none_test['actual'] == pfa_dashboard_diff_none_test['pred']).astype(int)
-pfa_dashboard_diff_none_test_stats['binned_range'] = pd.cut(pfa_dashboard_diff_none_test_stats['probs_1'], bins=bins, labels=bin_labels)  # https://stackoverflow.com/questions/45273731/binning-column-with-python-pandas#45273750
-pfa_dashboard_diff_none_test_stats['binned_inx'] = pd.cut(pfa_dashboard_diff_none_test_stats['probs_1'], bins=bins)  # https://stackoverflow.com/questions/45273731/binning-column-with-python-pandas#45273750
-
-pfa_dashboard_diff_none_test.to_csv(os.path.join(run_dir, 'random_forest_test_outcome.csv'), index=False)
-accuracy_test = (pfa_dashboard_diff_none_test['actual'] == pfa_dashboard_diff_none_test['pred'])
-accuracy_test.sum() / len(accuracy_test)
+#
+#
+#
+#
+#
+# # =======================
+# # Create and store Validation Set data
+# pfa_dashboard_diff_none_test = pd.io.parsers.read_csv(os.path.join('dashboards', f'pfa_dashboard', f'pfa_dashboard_diff_none_test.csv'), delimiter=",", header=None)
+# pfa_dashboard_diff_none_test_answers = pd.io.parsers.read_csv(os.path.join('dashboards', f'pfa_dashboard', f'pfa_dashboard_diff_none_test_answers.csv'), delimiter=",", header=None)
+#
+# predictions_test = classifier.predict(pfa_dashboard_diff_none_test)
+# predicted_probs_test = classifier.predict_proba(pfa_dashboard_diff_none_test)
+# predicted_probs_0_test = [item[0] for item in predicted_probs_test]
+# predicted_probs_1_test = [item[1] for item in predicted_probs_test]
+#
+# pfa_dashboard_diff_none_test_stats = pfa_dashboard_diff_none_test.copy()
+# pfa_dashboard_diff_none_test_stats['actual'] = pfa_dashboard_diff_none_test_answers
+# pfa_dashboard_diff_none_test_stats['pred'] = predictions_test
+# pfa_dashboard_diff_none_test_stats['probs_0'] = predicted_probs_0_test
+# pfa_dashboard_diff_none_test_stats['probs_1'] = predicted_probs_1_test
+# pfa_dashboard_diff_none_test_stats['accuracy'] = (pfa_dashboard_diff_none_test['actual'] == pfa_dashboard_diff_none_test['pred']).astype(int)
+# pfa_dashboard_diff_none_test_stats['binned_range'] = pd.cut(pfa_dashboard_diff_none_test_stats['probs_1'], bins=bins, labels=bin_labels)  # https://stackoverflow.com/questions/45273731/binning-column-with-python-pandas#45273750
+# pfa_dashboard_diff_none_test_stats['binned_inx'] = pd.cut(pfa_dashboard_diff_none_test_stats['probs_1'], bins=bins)  # https://stackoverflow.com/questions/45273731/binning-column-with-python-pandas#45273750
+#
+# pfa_dashboard_diff_none_test.to_csv(os.path.join(run_dir, 'random_forest_test_outcome.csv'), index=False)
+# accuracy_test = (pfa_dashboard_diff_none_test['actual'] == pfa_dashboard_diff_none_test['pred'])
+# accuracy_test.sum() / len(accuracy_test)
 
 
 # print(predicted_probs)
