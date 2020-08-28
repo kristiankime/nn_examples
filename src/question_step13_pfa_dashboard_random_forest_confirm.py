@@ -9,7 +9,7 @@ import datetime
 import math
 import decimal
 import matplotlib.pyplot as plt
-import scipy.stats as st
+import scipy.stats as stats
 
 from tensorflow import keras
 from sklearn.ensemble import RandomForestClassifier
@@ -20,6 +20,7 @@ from sklearn import linear_model
 from sklearn.metrics import mean_squared_error, r2_score
 
 from util.logs import stdout_add_file, stdout_reset
+
 
 def drange_inc(x, y, jump):
     while x <= y:
@@ -65,8 +66,8 @@ classifier: RandomForestClassifier = joblib.load(os.path.join(run_dir, 'random_f
 bins = list(drange_inc(0, 1, '0.05')) # 5% point bin size
 bin_labels = list(range(1, 21))
 
-def binning(g):
-    return pd.Series(data={'actual': g.actual.sum(), 'count': len(g.index)})
+# def binning(g):
+#     return pd.Series(data={'actual': g.actual.sum(), 'count': len(g.index)})
 
 # =======================
 # Create and store Validation Set data
@@ -93,21 +94,45 @@ def binning(g):
     return pd.Series(data={'actual': g.actual.sum(), 'count': len(g.index)})
 
 
+# ======== with all
 pfa_dashboard_diff_none_validate_gb = pfa_dashboard_diff_none_validate_stats.groupby(by=['binned_range']).apply(binning).reset_index()
 pfa_dashboard_diff_none_validate_gb['rate'] = pfa_dashboard_diff_none_validate_gb['binned_range'].apply(lambda x: x.right)
 pfa_dashboard_diff_none_validate_gb['expected'] = pfa_dashboard_diff_none_validate_gb['count'] * pfa_dashboard_diff_none_validate_gb['rate']
 pfa_dashboard_diff_none_validate_gb['actual_rate'] = pfa_dashboard_diff_none_validate_gb['actual'] / pfa_dashboard_diff_none_validate_gb['count']
 pfa_dashboard_diff_none_validate_gb.to_csv(os.path.join(run_dir, 'random_forest_validate_outcome_gb.csv'), index=False)
 
+# pfa_dashboard_diff_none_validate_gb.dropna()
 # R = pfa_dashboard_diff_none_train_gb['rate']
-# O = pfa_dashboard_diff_none_train_gb['actual']
-# E = pfa_dashboard_diff_none_train_gb['expected']
-# OE = O - E
-# C2 = (OE * OE) / E
+O = pfa_dashboard_diff_none_validate_gb['actual']
+E = pfa_dashboard_diff_none_validate_gb['expected']
+OE = O - E
+C2 = (OE * OE) / E
+
+c2_stats = stats.chisquare(f_obs=pfa_dashboard_diff_none_validate_gb.dropna()['actual'], f_exp=pfa_dashboard_diff_none_validate_gb.dropna()['expected'])
+print(c2_stats)
+# stats.chisquare(f_obs=(pfa_dashboard_diff_none_validate_gb.dropna()['actual']+2), f_exp=pfa_dashboard_diff_none_validate_gb.dropna()['actual'])
+# stats.chisquare(f_obs=[1, 2, 3, 5, 5, 6], f_exp=[1, 2, 3, 4, 5, 6])
+
 
 plt.plot(pfa_dashboard_diff_none_validate_gb['rate'], pfa_dashboard_diff_none_validate_gb['actual_rate'], '-o')
 plt.plot(pfa_dashboard_diff_none_validate_gb['rate'], pfa_dashboard_diff_none_validate_gb['rate'], '-o')
 plt.savefig(os.path.join(run_dir, 'random_forest_validate_outcome_gb.pdf'), bbox_inches='tight')
+
+# ======== with 100
+pfa_dashboard_diff_none_validate_stats_100 = pfa_dashboard_diff_none_validate_stats.sample(100)
+
+pfa_dashboard_diff_none_validate_gb_100 = pfa_dashboard_diff_none_validate_stats_100.groupby(by=['binned_range']).apply(binning).reset_index()
+pfa_dashboard_diff_none_validate_gb_100['rate'] = pfa_dashboard_diff_none_validate_gb_100['binned_range'].apply(lambda x: x.right)
+pfa_dashboard_diff_none_validate_gb_100['expected'] = pfa_dashboard_diff_none_validate_gb_100['count'] * pfa_dashboard_diff_none_validate_gb_100['rate']
+pfa_dashboard_diff_none_validate_gb_100['actual_rate'] = pfa_dashboard_diff_none_validate_gb_100['actual'] / pfa_dashboard_diff_none_validate_gb_100['count']
+pfa_dashboard_diff_none_validate_gb_100.to_csv(os.path.join(run_dir, 'random_forest_validate_outcome_gb_100.csv'), index=False)
+
+c2_stats_100 = stats.chisquare(f_obs=pfa_dashboard_diff_none_validate_gb_100.dropna()['actual'], f_exp=pfa_dashboard_diff_none_validate_gb_100.dropna()['expected'])
+print(c2_stats_100)
+
+plt.plot(pfa_dashboard_diff_none_validate_gb_100['rate'], pfa_dashboard_diff_none_validate_gb_100['actual_rate'], '-o')
+plt.plot(pfa_dashboard_diff_none_validate_gb_100['rate'], pfa_dashboard_diff_none_validate_gb_100['rate'], '-o')
+plt.savefig(os.path.join(run_dir, 'random_forest_validate_outcome_gb_100.pdf'), bbox_inches='tight')
 
 
 # =========== End Reporting ===========
