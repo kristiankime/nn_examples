@@ -26,8 +26,8 @@ np.random.seed(23)  # pandas uses numpy
 full_history_length = 243
 model_history_length = 13 # 243 possible but can't do all of them sometimes see this https://github.com/keras-team/keras/issues/4563 and sometimes the results are just bad
 feature_num = 27 # <correct or not> + <26 features>
-# lstm_layer_size = 80
-# lstm_epochs = 245
+lstm_layer_size = 80
+lstm_epochs = 245
 
 pred_model_layer_1 = 1024
 pred_model_layer_2 = 256
@@ -35,8 +35,9 @@ pred_epochs = 80
 
 np.set_printoptions(linewidth=200, threshold=(full_history_length + 1) * model_history_length * feature_num) # unset with np.set_printoptions()
 
-# output location
+# model load dir
 run_dir_load = os.path.join('runs', f'run_embedded_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_epochs}')
+# output location
 run_dir = os.path.join('runs', f'run_results_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_epochs}')
 
 if not os.path.exists(run_dir):
