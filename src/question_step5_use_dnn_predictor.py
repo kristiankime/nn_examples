@@ -45,8 +45,6 @@ if not os.path.exists(run_dir):
 #
 # stdout_add_file(os.path.join(run_dir, 'log.txt'))
 #
-snapshots_validate_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_validate_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip")
-snapshots_validate_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_validate_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip")
 
 # =========== Load the prediction model ===========
 
@@ -56,6 +54,10 @@ model = keras.models.load_model(os.path.join(run_dir_load, f'model.h5'))
 
 # =========== Probability version of the model ===========
 probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
+
+# ===== Validate run ====
+snapshots_validate_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_validate_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), header=None, delimiter=",", compression="gzip")
+snapshots_validate_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_validate_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), header=None, delimiter=",", compression="gzip")
 
 # Get predictions from the model
 predictions = probability_model.predict(snapshots_validate_embedded)
@@ -67,19 +69,41 @@ actual_outcome = snapshots_validate_labels.values[:,0].transpose()
 # concatenate them together and save to disk
 pred_vs_actual = np.column_stack((correct_prediction, actual_outcome))
 pred_vs_actual_df = pd.DataFrame(data=pred_vs_actual, columns=['prob', 'correct'])
-pred_vs_actual_df.to_csv(os.path.join(run_dir, f'pred_vs_actual.csv'), index=False)
+pred_vs_actual_df.to_csv(os.path.join(run_dir, f'nn_pred_vs_actual_validate.csv'), index=False)
+
+
+# ===== Test run ====
+snapshots_test_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_test_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), header=None, delimiter=",", compression="gzip")
+snapshots_test_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_test_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), header=None, delimiter=",", compression="gzip")
+
+# Get predictions from the model
+predictions = probability_model.predict(snapshots_test_embedded)
+correct_prediction = predictions[:,1].transpose()
+
+# get the actual outcome
+actual_outcome = snapshots_test_labels.values[:,0].transpose()
+
+# concatenate them together and save to disk
+pred_vs_actual = np.column_stack((correct_prediction, actual_outcome))
+pred_vs_actual_df = pd.DataFrame(data=pred_vs_actual, columns=['prob', 'correct'])
+pred_vs_actual_df.to_csv(os.path.join(run_dir, f'nn_pred_vs_actual_test.csv'), index=False)
+
+
+
+
 
 # # np.argmax(predictions[0]) # pick the highest chance
 # # test_labels[0]
 #
 #
-# # =========== End Reporting ===========
-# end = datetime.datetime.now()
-# difference = end - start
-#
-# print(f'start      {start}')
-# print(f'end        {end}')
-# print(f'difference {difference}')
-#
-# stdout_reset()
-#
+
+# =========== End Reporting ===========
+end = datetime.datetime.now()
+difference = end - start
+
+print(f'start      {start}')
+print(f'end        {end}')
+print(f'difference {difference}')
+
+stdout_reset()
+
