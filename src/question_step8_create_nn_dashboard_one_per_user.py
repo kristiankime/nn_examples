@@ -79,8 +79,8 @@ probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
 # ================= VALIDATE ===============
 print(f"loading validate data")
-snapshots_validate_embedded = pd.io.parsers.read_csv(os.path.join('outputs', 'pick1', f'snapshots_validate_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}_s1.csv.gz'), delimiter=",", compression="gzip")
-snapshots_validate_labels = pd.io.parsers.read_csv(os.path.join('outputs', 'pick1', f'snapshots_validate_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}_s1.csv.gz'), delimiter=",", compression="gzip")
+snapshots_validate_embedded = pd.io.parsers.read_csv(os.path.join('outputs', 'pick1', f'snapshots_validate_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}_s1.csv.gz'), delimiter=",", compression="gzip", header=None)
+snapshots_validate_labels = pd.io.parsers.read_csv(os.path.join('outputs', 'pick1', f'snapshots_validate_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}_s1.csv.gz'), delimiter=",", compression="gzip", header=None)
 # ========= Dashboard and current question
 print(f"computing dashboard")
 snapshots_validate_embedded_dashboard = [
@@ -95,18 +95,18 @@ np.savetxt(os.path.join(run_dir, f'nn_dashboard_diff_none_validate_answers_s1.cs
 
 # ================= TEST ===============
 print(f"loading test data")
-snapshots_test_embedded = pd.io.parsers.read_csv(os.path.join('outputs', 'pick1', f'snapshots_test_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}_s1.csv.gz'), delimiter=",", compression="gzip")
-snapshots_test_labels = pd.io.parsers.read_csv(os.path.join('outputs', 'pick1', f'snapshots_test_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}_s1.csv.gz'), delimiter=",", compression="gzip")
+snapshots_test_embedded = pd.io.parsers.read_csv(os.path.join('outputs', 'pick1', f'snapshots_test_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}_s1.csv.gz'), delimiter=",", compression="gzip", header=None)
+snapshots_test_labels = pd.io.parsers.read_csv(os.path.join('outputs', 'pick1', f'snapshots_test_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}_s1.csv.gz'), delimiter=",", compression="gzip", header=None)
 # ========= Dashboard and current question
 print(f"computing dashboard")
 snapshots_test_embedded_dashboard = [
     nn_dashboard(ac, probability_model, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1)
     for ac in snapshots_test_embedded.to_numpy()]
 print(f"saving dashboard")
-np.savetxt(os.path.join(run_dir, f'nn_dashboard_diff_none_test_s1.csv'), snapshots_test_embedded_dashboard, fmt='%1.4f', delimiter=",")
+np.savetxt(os.path.join(run_dir, f'nn_dashboard_diff_none_test_s1.csv'), snapshots_test_embedded_dashboard, fmt='%1.4f', delimiter=",", header=None)
 # ========= answer / label for current question
 print(f"saving answers")
-np.savetxt(os.path.join(run_dir, f'nn_dashboard_diff_none_test_answers_s1.csv'), snapshots_test_labels, fmt='%1.4f', delimiter=",")
+np.savetxt(os.path.join(run_dir, f'nn_dashboard_diff_none_test_answers_s1.csv'), snapshots_test_labels, fmt='%1.4f', delimiter=",", header=None)
 
 
 

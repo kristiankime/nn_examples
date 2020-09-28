@@ -60,16 +60,16 @@ snapshots_validate_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f's
 snapshots_validate_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_validate_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), header=None, delimiter=",", compression="gzip")
 
 # Get predictions from the model
-predictions = probability_model.predict(snapshots_validate_embedded)
-correct_prediction = predictions[:,1].transpose()
+predictions_validate = probability_model.predict(snapshots_validate_embedded)
+correct_prediction_validate = predictions_validate[:,1].transpose()
 
 # get the actual outcome
-actual_outcome = snapshots_validate_labels.values[:,0].transpose()
+actual_outcome_validate = snapshots_validate_labels.values[:,0].transpose()
 
 # concatenate them together and save to disk
-pred_vs_actual = np.column_stack((correct_prediction, actual_outcome))
-pred_vs_actual_df = pd.DataFrame(data=pred_vs_actual, columns=['prob', 'correct'])
-pred_vs_actual_df.to_csv(os.path.join(run_dir, f'nn_pred_vs_actual_validate.csv'), index=False)
+pred_vs_actual_validate = np.column_stack((correct_prediction_validate, actual_outcome_validate))
+pred_vs_actual_validate_df = pd.DataFrame(data=pred_vs_actual_validate, columns=['prob', 'correct'])
+pred_vs_actual_validate_df.to_csv(os.path.join(run_dir, f'nn_pred_vs_actual_validate.csv'), index=False)
 
 
 # ===== Test run ====
@@ -77,16 +77,16 @@ snapshots_test_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snaps
 snapshots_test_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_test_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), header=None, delimiter=",", compression="gzip")
 
 # Get predictions from the model
-predictions = probability_model.predict(snapshots_test_embedded)
-correct_prediction = predictions[:,1].transpose()
+predictions_test = probability_model.predict(snapshots_test_embedded)
+correct_prediction_test = predictions_test[:,1].transpose()
 
 # get the actual outcome
-actual_outcome = snapshots_test_labels.values[:,0].transpose()
+actual_outcome_test = snapshots_test_labels.values[:,0].transpose()
 
 # concatenate them together and save to disk
-pred_vs_actual = np.column_stack((correct_prediction, actual_outcome))
-pred_vs_actual_df = pd.DataFrame(data=pred_vs_actual, columns=['prob', 'correct'])
-pred_vs_actual_df.to_csv(os.path.join(run_dir, f'nn_pred_vs_actual_test.csv'), index=False)
+pred_vs_actual_test = np.column_stack((correct_prediction_test, actual_outcome_test))
+pred_vs_actual_df_test = pd.DataFrame(data=pred_vs_actual_test, columns=['prob', 'correct'])
+pred_vs_actual_df_test.to_csv(os.path.join(run_dir, f'nn_pred_vs_actual_test.csv'), index=False)
 
 
 

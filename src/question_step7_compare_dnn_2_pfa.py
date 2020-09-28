@@ -50,8 +50,10 @@ history_ids_validate = pd.read_csv(os.path.join('outputs', f'history_validate_l{
 pfa_pred_validate = pd.read_csv(os.path.join(run_dir_pfa_load, f'pfa_pred_vs_actual_validate.csv'))
 dnn_pred_validate = pd.read_csv(os.path.join(run_dir_dnn_load, f'nn_pred_vs_actual_validate.csv'))
 
-h = history_ids_validate.iloc[1:].reset_index()
-p = pfa_pred_validate.iloc[1:].reset_index()
+# h = history_ids_validate.iloc[1:].reset_index()
+# p = pfa_pred_validate.iloc[1:].reset_index()
+h = history_ids_validate
+p = pfa_pred_validate
 d = dnn_pred_validate.rename(columns={'prob': 'dnn_pred', 'correct': 'dnn_cor'})
 
 pfa_vs_dnn = pd.concat([h, p, d], axis=1)
@@ -127,13 +129,13 @@ pfa_vs_dnn.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_validate.csv')
 # # test_labels[0]
 #
 #
-# # =========== End Reporting ===========
-# end = datetime.datetime.now()
-# difference = end - start
-#
-# print(f'start      {start}')
-# print(f'end        {end}')
-# print(f'difference {difference}')
-#
-# stdout_reset()
-#
+# =========== End Reporting ===========
+end = datetime.datetime.now()
+difference = end - start
+
+print(f'start      {start}')
+print(f'end        {end}')
+print(f'difference {difference}')
+
+stdout_reset()
+

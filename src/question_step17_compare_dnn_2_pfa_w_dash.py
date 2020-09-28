@@ -43,37 +43,33 @@ result_dir = os.path.join('results', f'pfa_vs_dnn')
 if not os.path.exists(result_dir):
     os.makedirs(result_dir)
 
-run_dir_dnn_load = os.path.join('runs', f'run_results_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_epochs}')
-run_dir_pfa_load = os.path.join('runs', f'run_results_pfa')
-
-run_dir_dnn_load_dashboard = os.path.join('dashboards', f'nn_dashboard')
-run_dir_pfa_load_dashboard = os.path.join('runs', f'run_results_pfa')
 
 
 history_ids_validate = pd.read_csv(os.path.join('outputs', f'history_validate_l{full_history_length}.csv'))
+run_dir_dnn_load = os.path.join('runs', f'run_results_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_epochs}')
+dnn_pred_validate = pd.read_csv(os.path.join(run_dir_dnn_load, f'nn_pred_vs_actual_validate.csv')).rename(columns={'prob': 'dnn_pred', 'correct': 'dnn_cor'})
+run_dir_pfa_load = os.path.join('runs', f'run_results_pfa')
 pfa_pred_validate = pd.read_csv(os.path.join(run_dir_pfa_load, f'pfa_pred_vs_actual_validate.csv'))
-dnn_pred_validate = pd.read_csv(os.path.join(run_dir_dnn_load, f'pred_vs_actual_validate.csv'))
+# TODO keep and renames
+# keep_cols = ['actual', 'pred', 'probs_0', 'probs_1', 'accuracy']
+keep_cols = ['actual', 'probs_1']
+# rename_cols = .rename(columns={'probs_1': 'dnn_d_pred', 'actual': 'dnn_d_cor'})
+# run_dir_dnn_load_dashboard = os.path.join('dashboards', f'nn_dashboard')
+pfa_dash_pred_validate = pd.read_csv(os.path.join('dashboards', f'nn_dashboard', 'run_random_forest', 'pred_vs_actual', f'random_forest_validate_pva.csv'))[keep_cols].rename(columns={'probs_1': 'dnn_d_pred', 'actual': 'dnn_d_cor'})
+# run_dir_pfa_load_dashboard = os.path.join('dashboards', f'pfa_dashboard')
+dnn_dash_pred_validate = pd.read_csv(os.path.join('dashboards', f'pfa_dashboard', 'run_random_forest', 'pred_vs_actual', f'random_forest_validate_pva.csv'))[keep_cols].rename(columns={'probs_1': 'pfa_d_pred', 'actual': 'pfa_d_cor'})
 
-# nn dash
-np.savetxt(os.path.join(run_dir, f'nn_dashboard_diff_none_validate.csv'), snapshots_validate_embedded_dashboard, fmt='%1.4f', delimiter=",")
-np.savetxt(os.path.join(run_dir, f'nn_dashboard_diff_none_validate_answers.csv'), snapshots_validate_labels, fmt='%1.4f', delimiter=",")
-
-# pfa dash
-np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_train.csv'), answer_counts_train_dashboard, fmt='%1.4f', delimiter=",")
-np.savetxt(os.path.join(run_dir, f'pfa_dashboard_diff_none_train_answers.csv'), answer_counts_train_dashboard_answer, fmt='%1.4f', delimiter=",")
-
-
-
+pfa_vs_dnn = pd.concat([
+    history_ids_validate,
+    pfa_pred_validate,
+    pfa_dash_pred_validate,
+    dnn_pred_validate,
+    dnn_dash_pred_validate
+    ],
+    axis=1)
 
 
-
-h = history_ids_validate.iloc[1:].reset_index()
-p = pfa_pred_validate.iloc[1:].reset_index()
-d = dnn_pred_validate.rename(columns={'prob': 'dnn_pred', 'correct': 'dnn_cor'})
-
-pfa_vs_dnn = pd.concat([h, p, d], axis=1)
-
-pfa_vs_dnn.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_validate.csv'), index=False)
+pfa_vs_dnn.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_w_dash_validate.csv'), index=False)
 
 # TODO total counts for counts
 # pfa_vs_dnn.groupby(by="anon_id").

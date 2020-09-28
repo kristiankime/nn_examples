@@ -63,8 +63,8 @@ probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
 
 # ================= TRAIN ===============
 print(f"loading train data")
-snapshots_train_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_train_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip")
-snapshots_train_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_train_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip")
+snapshots_train_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_train_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip", header=None)
+snapshots_train_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_train_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip", header=None)
 # ========= Dashboard and current question
 print(f"computing dashboard")
 snapshots_train_embedded_dashboard = [
@@ -79,8 +79,8 @@ np.savetxt(os.path.join(run_dir, f'nn_dashboard_diff_none_train_answers.csv'), s
 
 # ================= VALIDATE ===============
 print(f"loading validate data")
-snapshots_validate_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_validate_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip")
-snapshots_validate_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_validate_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip")
+snapshots_validate_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_validate_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip", header=None)
+snapshots_validate_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_validate_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip", header=None)
 # ========= Dashboard and current question
 print(f"computing dashboard")
 snapshots_validate_embedded_dashboard = [
@@ -95,8 +95,8 @@ np.savetxt(os.path.join(run_dir, f'nn_dashboard_diff_none_validate_answers.csv')
 
 # ================= TEST ===============
 print(f"loading test data")
-snapshots_test_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_test_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip")
-snapshots_test_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_test_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip")
+snapshots_test_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_test_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip", header=None)
+snapshots_test_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_test_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip", header=None   )
 # ========= Dashboard and current question
 print(f"computing dashboard")
 snapshots_test_embedded_dashboard = [
