@@ -96,13 +96,12 @@ df_validate.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual_validate.csv'), in
 # # test_labels[0]
 #
 #
-# # =========== End Reporting ===========
-# end = datetime.datetime.now()
-# difference = end - start
-#
-# print(f'start      {start}')
-# print(f'end        {end}')
-# print(f'difference {difference}')
-#
-# stdout_reset()
-#
+# =========== End Reporting ===========
+end = datetime.datetime.now()
+difference = end - start
+
+print(f'start      {start}')
+print(f'end        {end}')
+print(f'difference {difference}')
+
+stdout_reset()

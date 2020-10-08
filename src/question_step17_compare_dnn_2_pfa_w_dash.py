@@ -6,16 +6,19 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 import datetime
+import matplotlib.pyplot as plt
+
 from tensorflow import keras
 
 from numpy import array
 from tensorflow.keras.models import Model
 
 from util.logs import stdout_add_file, stdout_reset
-from util.util import group_snapshots, read_numpy_3d_array_from_txt
+from util.util import group_snapshots, read_numpy_3d_array_from_txt, drange_inc
 from models import lstm_autoencoder
 from util.data import split_snapshot_history_single, split_snapshot_history
 from util.pfa import pfa_prediction, pfa_coef_counts, pfa_coef
+from util.util import drange_inc, add_binning_cols, binned_counts
 
 start = datetime.datetime.now()
 # set the seed for reproducibility
@@ -46,18 +49,11 @@ if not os.path.exists(result_dir):
 
 
 history_ids_validate = pd.read_csv(os.path.join('outputs', f'history_validate_l{full_history_length}.csv'))
-run_dir_dnn_load = os.path.join('runs', f'run_results_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_epochs}')
-dnn_pred_validate = pd.read_csv(os.path.join(run_dir_dnn_load, f'nn_pred_vs_actual_validate.csv')).rename(columns={'prob': 'dnn_pred', 'correct': 'dnn_cor'})
-run_dir_pfa_load = os.path.join('runs', f'run_results_pfa')
-pfa_pred_validate = pd.read_csv(os.path.join(run_dir_pfa_load, f'pfa_pred_vs_actual_validate.csv'))
-# TODO keep and renames
-# keep_cols = ['actual', 'pred', 'probs_0', 'probs_1', 'accuracy']
 keep_cols = ['actual', 'probs_1']
-# rename_cols = .rename(columns={'probs_1': 'dnn_d_pred', 'actual': 'dnn_d_cor'})
-# run_dir_dnn_load_dashboard = os.path.join('dashboards', f'nn_dashboard')
-pfa_dash_pred_validate = pd.read_csv(os.path.join('dashboards', f'nn_dashboard', 'run_random_forest', 'pred_vs_actual', f'random_forest_validate_pva.csv'))[keep_cols].rename(columns={'probs_1': 'dnn_d_pred', 'actual': 'dnn_d_cor'})
-# run_dir_pfa_load_dashboard = os.path.join('dashboards', f'pfa_dashboard')
-dnn_dash_pred_validate = pd.read_csv(os.path.join('dashboards', f'pfa_dashboard', 'run_random_forest', 'pred_vs_actual', f'random_forest_validate_pva.csv'))[keep_cols].rename(columns={'probs_1': 'pfa_d_pred', 'actual': 'pfa_d_cor'})
+pfa_pred_validate = pd.read_csv(os.path.join(os.path.join('runs', f'run_results_pfa'), f'pfa_pred_vs_actual_validate.csv'))
+pfa_dash_pred_validate = pd.read_csv(os.path.join('dashboards', f'pfa_dashboard', 'run_random_forest', 'pred_vs_actual', f'random_forest_validate_pva.csv'))[keep_cols].rename(columns={'probs_1': 'pfa_d_pred', 'actual': 'pfa_d_cor'})
+dnn_pred_validate = pd.read_csv(os.path.join(os.path.join('runs', f'run_results_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_epochs}'), f'nn_pred_vs_actual_validate.csv')).rename(columns={'prob': 'dnn_pred', 'correct': 'dnn_cor'})
+dnn_dash_pred_validate = pd.read_csv(os.path.join('dashboards', f'nn_dashboard', 'run_random_forest', 'pred_vs_actual', f'random_forest_validate_pva.csv'))[keep_cols].rename(columns={'probs_1': 'dnn_d_pred', 'actual': 'dnn_d_cor'})
 
 pfa_vs_dnn = pd.concat([
     history_ids_validate,
@@ -70,6 +66,80 @@ pfa_vs_dnn = pd.concat([
 
 
 pfa_vs_dnn.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_w_dash_validate.csv'), index=False)
+
+bins = list(drange_inc(0, 1, '0.05')) # 5% point bin size
+bin_labels = list(range(1, 21))
+base_cols = ['pfa', 'pfa_d', 'dnn', 'dnn_d']
+correct_cols = [c + "_cor" for c in base_cols]
+prediction_cols = [c + "_pred" for c in base_cols]
+
+# correct_cols = ['pfa_cor', 'dnn_d_cor', 'dnn_cor', 'pfa_d_cor']
+# prediction_cols = ['pfa_pred', 'dnn_d_pred', 'dnn_pred', 'pfa_d_pred']
+
+pfa_vs_dnn_binned = pfa_vs_dnn.copy()
+pfa_vs_dnn_binned = pfa_vs_dnn_binned.drop(columns=correct_cols)
+
+# pfa_vs_dnn_binned.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_w_dash_validate_no_cor.csv'), index=False)
+
+
+for prob_col in prediction_cols:
+    add_binning_cols(pfa_vs_dnn_binned, prob_col=prob_col, prefix=prob_col, bins=bins, bin_labels=bin_labels)
+
+# prediction_cols = ['pfa_pred', 'dnn_d_pred', 'dnn_pred', 'pfa_d_pred']
+
+pfa_vs_dnn_binned.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_w_dash_bin_validate.csv'), index=False)
+
+
+pfa_gb = binned_counts(pfa_vs_dnn_binned, actual_col='correct', bin_col='pfa_pred' + '_range')
+pfa_d_gb = binned_counts(pfa_vs_dnn_binned, actual_col='correct', bin_col='pfa_d_pred' + '_range')
+dnn_gb = binned_counts(pfa_vs_dnn_binned, actual_col='correct', bin_col='dnn_pred' + '_range')
+dnn_d_gb = binned_counts(pfa_vs_dnn_binned, actual_col='correct', bin_col='dnn_d_pred' + '_range')
+
+fig1, ax1 = plt.subplots()
+ax1.plot(pfa_gb['rate'], pfa_gb['rate'], '-o', label='rate')
+ax1.plot(pfa_gb['rate'], pfa_gb['actual_rate'], '-o', label='pfa')
+ax1.plot(pfa_d_gb['rate'], pfa_d_gb['actual_rate'], '-o', label='pfa_d')
+ax1.plot(dnn_gb['rate'], dnn_gb['actual_rate'], '-o', label='dnn')
+ax1.plot(dnn_d_gb['rate'], dnn_d_gb['actual_rate'], '-o', label='dnn_d')
+ax1.legend(loc='upper left')
+fig1.savefig(os.path.join(result_dir, 'pfa_dnn_dash_compare_all.pdf'), bbox_inches='tight')
+
+
+    # plt.plot(pfa_gb['rate'], pfa_gb['rate'], '-o', label='rate')
+    # plt.plot(pfa_gb['rate'], pfa_gb['actual_rate'], '-o', label='pfa')
+    # plt.plot(pfa_d_gb['rate'], pfa_d_gb['actual_rate'], '-o', label='pfa_d')
+    # plt.plot(dnn_gb['rate'], dnn_gb['actual_rate'], '-o', label='dnn')
+    # plt.plot(dnn_d_gb['rate'], dnn_d_gb['actual_rate'], '-o', label='dnn_d')
+    # plt.legend(loc='upper left')
+    # plt.savefig(os.path.join(result_dir, 'pfa_dnn_dash_compare_all.pdf'), bbox_inches='tight')
+
+
+# def binning(g):
+#     return pd.Series(data={'actual': g.actual.sum(), 'count': len(g.index)})
+#
+# pfa_dashboard_diff_none_validate_gb = pfa_dashboard_diff_none_validate_stats.groupby(by=['binned_range']).apply(binning).reset_index()
+# pfa_dashboard_diff_none_validate_gb['rate'] = pfa_dashboard_diff_none_validate_gb['binned_range'].apply(lambda x: x.right)
+# pfa_dashboard_diff_none_validate_gb['expected'] = pfa_dashboard_diff_none_validate_gb['count'] * pfa_dashboard_diff_none_validate_gb['rate']
+# pfa_dashboard_diff_none_validate_gb['actual_rate'] = pfa_dashboard_diff_none_validate_gb['actual'] / pfa_dashboard_diff_none_validate_gb['count']
+# pfa_dashboard_diff_none_validate_gb.to_csv(os.path.join(run_dir, 'random_forest_validate_outcome_gb.csv'), index=False)
+#
+# plt.plot(pfa_dashboard_diff_none_validate_gb['rate'], pfa_dashboard_diff_none_validate_gb['actual_rate'], '-o')
+# plt.plot(pfa_dashboard_diff_none_validate_gb['rate'], pfa_dashboard_diff_none_validate_gb['rate'], '-o')
+# plt.savefig(os.path.join(run_dir, 'random_forest_validate_outcome_gb.pdf'), bbox_inches='tight')
+
+
+
+# def add_binning_cols():
+#     bins = list(drange_inc(0, 1, '0.05')) # 5% point bin size
+#     bin_labels = list(range(1, 21))
+#
+#
+# nn_dashboard_diff_none_validate_stats['binned_ind'] = pd.cut(nn_dashboard_diff_none_validate_stats['probs_1'], bins=bins, labels=bin_labels)  # https://stackoverflow.com/questions/45273731/binning-column-with-python-pandas#45273750
+# nn_dashboard_diff_none_validate_stats['binned_range'] = pd.cut(nn_dashboard_diff_none_validate_stats['probs_1'], bins=bins)  # https://stackoverflow.com/questions/45273731/binning-column-with-python-pandas#45273750
+#
+#
+# def binning(g):
+#     return pd.Series(data={'actual': g.actual.sum(), 'count': len(g.index)})
 
 # TODO total counts for counts
 # pfa_vs_dnn.groupby(by="anon_id").
@@ -140,13 +210,12 @@ pfa_vs_dnn.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_w_dash_validat
 # # test_labels[0]
 #
 #
-# # =========== End Reporting ===========
-# end = datetime.datetime.now()
-# difference = end - start
-#
-# print(f'start      {start}')
-# print(f'end        {end}')
-# print(f'difference {difference}')
-#
-# stdout_reset()
-#
+# =========== End Reporting ===========
+end = datetime.datetime.now()
+difference = end - start
+
+print(f'start      {start}')
+print(f'end        {end}')
+print(f'difference {difference}')
+
+stdout_reset()

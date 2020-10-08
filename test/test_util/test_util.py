@@ -4,11 +4,14 @@ import numpy as np
 import pandas as pd
 
 from numpy import array
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, assert_equal
 
 from util.util import padded_history, history_snapshots, group_snapshots
 from util.util import write_numpy_3d_array_as_txt, read_numpy_3d_array_from_txt
 from util.util import pick_1_in_group
+from util.util import drange_inc
+from util.util import add_binning_cols
+from util.util import binned_counts
 
 
 # print("expected")
@@ -17,6 +20,69 @@ from util.util import pick_1_in_group
 # print(result)
 
 class TestUtilMethods(unittest.TestCase):
+    # ====================== drange_inc ======================
+    def test_drange_inc__works(self):
+        result = list(drange_inc(0, .1, '0.05'))
+        expected = [0, 0.05, 0.1]
+        assert_equal(result, expected)
+
+
+    # ====================== add_binning_cols ======================
+    def test_add_binning_cols__works(self):
+        data = [[0.3,],
+                [0.6,],
+                [1.0,],
+
+                [1.3,],
+                [1.6,],
+                [2.0,],
+                ]
+        input = pd.DataFrame(data, columns = ['val'])
+
+        result = add_binning_cols(input, prob_col='val', prefix='pre', bins=list(drange_inc(0, 2, '1')), bin_labels=list(range(1, 3)))
+
+        print('result')
+        print(result)
+        item = result.iloc[0]['pre_range']
+        print('item')
+        print(item)
+        print('type')
+        print(type(item).__name__)
+
+        data = [[0.3,  1, pd.Interval(0.0, 1.0)],
+                [0.6,  1, pd.Interval(0.0, 1.0)],
+                [1.0,  1, pd.Interval(0.0, 1.0)],
+                [1.3,  2, pd.Interval(1.0, 2.0)],
+                [1.6,  2, pd.Interval(1.0, 2.0)],
+                [2.0,  2, pd.Interval(1.0, 2.0)],
+                ]
+        expected = pd.DataFrame(data, columns = ['val', 'pre_ind', 'pre_range'])
+
+        assert_array_equal(result, expected)
+
+
+    # ====================== add_binning_cols ======================
+    def test_binned_counts__works(self):
+        data = [[0.1,  0, 1, pd.Interval(0.0, 0.5)],
+                [0.1,  0, 1, pd.Interval(0.0, 0.5)],
+                [0.1,  0, 1, pd.Interval(0.0, 0.5)],
+                [0.9,  1, 2, pd.Interval(0.5, 1.0)],
+                [0.9,  1, 2, pd.Interval(0.5, 1.0)],
+                [0.9,  1, 2, pd.Interval(0.5, 1.0)],
+                ]
+        df = pd.DataFrame(data, columns = ['val', 'actual', 'pre_ind', 'pre_range'])
+
+        result = binned_counts(df, actual_col='actual', bin_col='pre_range')
+        print(result)
+
+        expected_data = [[pd.Interval(0.0, 0.5),  0,  3, 0.5, 1.5, 0.0],
+                         [pd.Interval(0.5, 1.0),  3,  3, 1.0, 3.0, 1.0],
+                ]
+        expected = pd.DataFrame(expected_data, columns = ['pre_range', 'actual', 'count', 'rate', 'expected', 'actual_rate'])
+        assert_array_equal(result, expected)
+
+
+
     # ====================== group_snapshots ======================
     def test_create_snapshots__default_creates_full_snapshots_for_each_row(self):
         data = [[1, 1., 0., 0.,],

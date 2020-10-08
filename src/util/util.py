@@ -2,8 +2,41 @@ import numpy as np
 import pandas as pd
 import re
 import itertools
+import decimal
 
 from numpy import array
+
+
+def drange_inc(x, y, jump):
+    inc = decimal.Decimal(jump)
+    while x <= y:
+        yield float(x)
+        x += inc
+
+
+def add_binning_cols(df, prob_col, prefix, bins=list(drange_inc(0, 1, '0.05')), bin_labels=list(range(1, 21))):
+    # bins = list(drange_inc(0, 1, '0.05')) # 5% point bin size
+    # bin_labels = list(range(1, 21))
+    df[f'{prefix}_ind'] = pd.cut(df[prob_col], bins=bins, labels=bin_labels)  # https://stackoverflow.com/questions/45273731/binning-column-with-python-pandas#45273750
+    df[f'{prefix}_range'] = pd.cut(df[prob_col], bins=bins)  # https://stackoverflow.com/questions/45273731/binning-column-with-python-pandas#45273750
+    return df
+
+
+# def binning(g, actual_name='actual', count_name='count'):
+#     return pd.Series(data={actual_name: g.actual.sum(), count_name: len(g.index)})
+
+
+def binned_counts(df, actual_col, bin_col):
+    def binning_func(g):
+        return pd.Series(data={'actual': g[actual_col].sum(), 'count': len(g.index)})
+
+    df_gb = df.groupby(by=[bin_col]).apply(binning_func).reset_index()
+    df_gb['rate'] = df_gb[bin_col].apply(lambda x: x.right)
+    df_gb['count_expected'] = df_gb['count'] * df_gb['rate']
+    df_gb['actual_rate'] = df_gb['actual'] / df_gb['count']
+    return df_gb
+
+
 
 
 def group_snapshots(history, groupby, group_slice=slice(None, None), snapshot_length=None, ensure_zeroes=None):
