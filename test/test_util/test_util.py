@@ -12,6 +12,8 @@ from util.util import pick_1_in_group
 from util.util import drange_inc
 from util.util import add_binning_cols
 from util.util import binned_counts
+from util.util import interweave_3_arrays
+from util.util import zero_if_single, zero_if_1d
 
 
 # print("expected")
@@ -41,13 +43,13 @@ class TestUtilMethods(unittest.TestCase):
 
         result = add_binning_cols(input, prob_col='val', prefix='pre', bins=list(drange_inc(0, 2, '1')), bin_labels=list(range(1, 3)))
 
-        print('result')
-        print(result)
+        # print('result')
+        # print(result)
         item = result.iloc[0]['pre_range']
-        print('item')
-        print(item)
-        print('type')
-        print(type(item).__name__)
+        # print('item')
+        # print(item)
+        # print('type')
+        # print(type(item).__name__)
 
         data = [[0.3,  1, pd.Interval(0.0, 1.0)],
                 [0.6,  1, pd.Interval(0.0, 1.0)],
@@ -73,7 +75,7 @@ class TestUtilMethods(unittest.TestCase):
         df = pd.DataFrame(data, columns = ['val', 'actual', 'pre_ind', 'pre_range'])
 
         result = binned_counts(df, actual_col='actual', bin_col='pre_range')
-        print(result)
+        # print(result)
 
         expected_data = [[pd.Interval(0.0, 0.5),  0,  3, 0.5, 1.5, 0.0],
                          [pd.Interval(0.5, 1.0),  3,  3, 1.0, 3.0, 1.0],
@@ -480,5 +482,39 @@ class TestUtilMethods(unittest.TestCase):
         df = pd.DataFrame(data, columns = ['c1'])
 
         res = pick_1_in_group(df, 'c1')
-        print(res)
+        # print(res)
         assert True
+
+    # ======== interweave_arrays ======
+    def test_interweave_3_arrays(selfs):
+        a1 = array([1., 4., 7.,])
+        a2 = array([2., 5., 8.,])
+        a3 = array([3., 6., 9.,])
+
+        actual = interweave_3_arrays(a1, a2, a3)
+
+        expected = array([1., 2., 3., 4., 5., 6., 7., 8., 9.,])
+
+        # print(f"actual   {actual}")
+        # print(f"expected {expected}")
+        assert_array_equal(expected, actual)
+
+
+    # ======== zero_if ======
+    def test_zero_if_single__nothing_happens_with_1(self):
+        ar = array([1., 2., 3.,])
+        actual = zero_if_single(ar, 0)
+        expected = array([1., 2., 3.,])
+        assert_array_equal(actual, expected)
+
+    def test_zero_if_single__blanks_with_0(self):
+        ar = array([0., 2., 3.,])
+        actual = zero_if_single(ar, 0)
+        expected = array([0., 0., 0.,])
+        assert_array_equal(actual, expected)
+
+    def test_zero_if_1d__(self):
+        ar = array([1., 1., 3., 4., 0., 5., 6.,])
+        actual = zero_if_1d(ar)
+        expected = array([1., 1., 3., 4., 0., 0., 0.,])
+        assert_array_equal(actual, expected)

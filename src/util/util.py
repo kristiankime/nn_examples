@@ -176,3 +176,27 @@ def pick_1_in_group(df: pd.DataFrame, group_col, pick1col='seq'):
     #     return ret
     #
     # return data.groupby(group_col).apply(f)
+
+
+def interweave_3_arrays(a1: array, a2: array, a3: array) -> array:  # https://stackoverflow.com/questions/5347065/interweaving-two-numpy-arrays
+    c = np.empty((a1.size + a2.size + a3.size,), dtype=a1.dtype)
+    c[0::3] = a1
+    c[1::3] = a2
+    c[2::3] = a3
+    return c
+
+
+def zero_if_single(arr: array, idx: int) -> array:
+    if arr[idx] == 0.:
+        arr[idx+1] = 0.
+        arr[idx+2] = 0.
+    return arr
+
+
+def zero_if_1d(arr: array) -> array:
+    l = len(arr)
+    i = 1
+    while i < l:
+        arr = zero_if_single(arr, i)
+        i = i + 3
+    return arr

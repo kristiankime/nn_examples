@@ -11,7 +11,7 @@ from unittest.mock import MagicMock
 
 from util.util import padded_history, history_snapshots
 from util.util import write_numpy_3d_array_as_txt, read_numpy_3d_array_from_txt
-from util.data import question_history_pd, split_snapshot_history, split_snapshot_history_single, create_embedded_history
+from util.data import question_history_pd, split_snapshot_history, split_snapshot_history_single, create_embedded_history, transform_counts_to_thin_format, transform_counts_to_thin_format_blank
 
 # print("expected")
 # print(expected)
@@ -348,3 +348,69 @@ class TestDataMethods(unittest.TestCase):
         # print("=== result label ===")
         # print(result_label)
         assert_array_equal(result_label, expected_label)
+
+    # ====================== transform_counts_to_thin_format ======================
+    def test_transform_counts_to_thin_format__works_with_one(self):
+        input = array([
+            [[0.,  4.,  7., 10.],
+             [0.,  5.,  8., 11.],
+             [1.,  3.,  6.,  9.]],
+        ])
+        actual = transform_counts_to_thin_format(input)
+
+        expected = array([
+            [1., 3., 4., 5., 6., 7., 8., 9., 10., 11.,],
+            ])
+        assert_array_equal(actual, expected)
+
+    def test_transform_counts_to_thin_format__multiple(self):
+        input = array([
+            [[0.,  4.,  7., 10.],
+             [0.,  5.,  8., 11.],
+             [1.,  3.,  6.,  9.]],
+
+            [[0., 14., 17., 20.],
+             [0., 15., 18., 21.],
+             [1., 13., 16., 19.]],
+        ])
+        actual = transform_counts_to_thin_format(input)
+
+        expected = array([
+            [1.,  3.,  4.,  5.,  6.,  7.,  8.,  9., 10., 11.,],
+            [1., 13., 14., 15., 16., 17., 18., 19., 20., 21.,],
+        ])
+        assert_array_equal(actual, expected)
+
+
+    # ====================== transform_counts_to_thin_format_blank ======================
+    # def test_transform_counts_to_thin_format_blank__works_with_one(self):
+    #     input = array([
+    #         [[0.,  4.,  7., 10.],
+    #          [0.,  5.,  8., 11.],
+    #          [1.,  3.,  6.,  9.]],
+    #     ])
+    #     actual = transform_counts_to_thin_format(input)
+    #
+    #     expected = array([
+    #         [1., 3., 4., 5., 6., 7., 8., 9., 10., 11.,],
+    #     ])
+    #     assert_array_equal(actual, expected)
+
+
+    def test_transform_counts_to_thin_format_blank__multiple(self):
+        input = array([
+            [[0.,  2.,  3.,  4.],
+             [0.,  2.,  3.,  4.],
+             [1.,  1.,  0.,  1.]],
+
+            # [[0.,  5.,  6.,  7.],
+            #  [0.,  5.,  6.,  7.],
+            #  [0.,  0.,  1.,  0.]],
+        ])
+        actual = transform_counts_to_thin_format_blank(input)
+
+        expected = array([
+            [1.,  1.,  2.,  2.,  0.,  0.,  0.,  1.,  4.,  4.,],
+            # [0.,  0.,  0.,  0.,  1.,  6.,  6.,  0.,  0.,  0.,],
+        ])
+        assert_array_equal(actual, expected)

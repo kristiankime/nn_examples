@@ -5,7 +5,7 @@ import pandas as pd
 
 from pandas.testing import assert_frame_equal
 
-from util.pfa import p_m, load_pfa_coef, pfa_coef, pfa_prediction_m, pfa_coef_counts, one_hot_skills, pfa_dashboard
+from util.pfa import p_m, load_pfa_coef, pfa_coef_old, pfa_prediction_m, pfa_coef_counts, one_hot_skills, pfa_dashboard
 
 from numpy import array
 from numpy.testing import assert_array_equal, assert_almost_equal, assert_equal
@@ -26,8 +26,8 @@ def pred(data, ceof, num_diffs, num_skills, diff_ind, skill_ind):
 
 class TestDataMethods(unittest.TestCase):
 
-    def test_pfa_coef__works(self):
-        actual = pfa_coef()
+    def test_pfa_coef_old__works(self):
+        actual = pfa_coef_old()
 
         expected = pd.DataFrame(
             columns=["factor", "intercept", "correct_coef", "incorrect_coef"],

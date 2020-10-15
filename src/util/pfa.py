@@ -12,7 +12,7 @@ def load_pfa_coef():
     return pd.read_csv(os.path.join('data', 'factors_coef_train_1.243diff.csv'))
 
 
-def pfa_coef():
+def pfa_coef_old():
     return pd.DataFrame(
         columns=["factor", "intercept", "correct_coef", "incorrect_coef"],
         data=[
@@ -45,6 +45,39 @@ def pfa_coef():
         ])
 
 
+def pfa_coef():
+    return pd.DataFrame(
+        columns=["factor", "intercept", "correct_coef", "incorrect_coef"],
+        data=[
+            ("very_easy", 1.493481465, 0.031805359, -0.099663404),
+            ("easy", 0.816352292, 0.011842884, -0.033759078),
+            ("medium", -0.012475342, 0.016069548, -0.018587459),
+            ("hard", -0.801974134, 0.022024601, -0.015983519),
+            ("very_hard", -1.922273944, 0.074448956, -0.015297359),
+            ("Graphing", 0.0513308, 0.016101945, -0.020231609),
+            ("Numerical", 0.157490305, 0.022793125, -0.026778728),
+            ("Verbal", -0.243549291, 0.109881942, -0.040788796),
+            ("Algebraic", 0.262783612, 0.018083795, -0.077606235),
+            ("Precalc", 0.029708391, 0.03075907, -0.029056208),
+            ("Trig", 0.037269735, 0.00622701, -0.009681269),
+            ("Logs", 0.208541782, 0, -0.045451138),
+            ("Exp", -0.190838301, 0.015562472, -0.008972252),
+            ("Alt.Var.Names", 0.235802927, 0, -0.046748089),
+            ("Abstract.Constants", -0.153316235, 0.022900013, 0.004662002),
+            ("Limits...Continuity", -0.020073969, 0.013283767, -0.019584892),
+            ("Continuity..Definition", 0.356429645, 0, -0.081871871),
+            ("Derivative..Definition..Concept", 0.072535364, 0.01317333, -0.017762764),
+            ("Derivative..Shortcuts", 0.222130126, 0.00937852, -0.010864698),
+            ("Product.Rule", -0.041549313, 0.001418236, -0.021000788),
+            ("Quotient.Rule", 0.016943706, 0.015122914, -0.037267658),
+            ("Chain.Rule", -0.202470147, 0.007656102, -0.008582573),
+            ("Implicit.Differentiation", 0.171533786, 0.004777519, -0.058777138),
+            ("Function.Analysis", 0.218745231, 0.00040746, -0.014997761),
+            ("Applications", -0.104364945, 0.016050773, -0.006285418),
+            ("Antiderivatives", -0.012057895, 0.030996012, -0.008329897),
+        ])
+
+
 def pfa_coef_counts(coef: pd.DataFrame):
     coef = coef.drop(columns=['factor'])
     coef = coef.transpose()
@@ -55,31 +88,24 @@ def pfa_coef_counts(coef: pd.DataFrame):
 
 def pfa_prediction_m(data_counts, coefs):
     current_answer = data_counts[2:3][0][0]
-    # print('current_answer')
-    # print(current_answer)
+    # print(f'current_answer \n{current_answer}')
 
     skill_mask = data_counts[2:3][0]
-    # print('skill_mask')
-    # print(skill_mask)
-
-    data_masked = np.multiply(data_counts, skill_mask)
-    # print('data_masked')
-    # print(data_masked)
+    # print(f'skill_mask \n{skill_mask}')
 
     # zero columns where the skills are not active
+    data_masked = np.multiply(data_counts, skill_mask)
+    # print(f'data_masked \n{data_masked}')
 
-    #     m_int <- intercept + (cor * cor_coef) + (inc * inc_coef)
-    # print('coefs')
-    # print(coefs)
     mult = np.multiply(data_masked, coefs)
-    # print('mult')
-    # print(mult)
+    # print(f'mult \n{mult}')
 
-    m = mult.sum()
-    # the above computations accidentally add the current answer and a 1.0 indicating the correct answer row
-    m = m - current_answer - 1.0
-    # print('m')
-    # print(m)
+    # remove the first column which has the correct / incorrect information that is not used in the PFA computation
+    mult_drop_hints = np.delete(mult, 0, axis=1)
+    # print(f'mult_drop_hints \n{mult_drop_hints}')
+
+    m = mult_drop_hints.sum()
+    # print(f'm \n{m}')
 
     return m
 

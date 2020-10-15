@@ -3,7 +3,7 @@ import pandas as pd
 import math
 
 from numpy import array
-from util.util import group_snapshots, padded_history
+from util.util import group_snapshots, padded_history, interweave_3_arrays, zero_if_1d
 
 # def question_snapshots(file=os.path.join('outputs' , 'answers_history.csv'), user_size=100, history_length=243):
 #     answer_history_base = pd.io.parsers.read_csv(os.path.join('outputs' , 'answers_history.csv'))
@@ -66,6 +66,26 @@ def question_history_pd(answer_history_base, history_length, ensure_zeros) -> (p
     answer_counts = np.array([pfa_data(history) for history in answer_snapshots])
 
     return history_ids, answer_snapshots, answer_counts
+
+
+def transform_counts_to_thin_format(data):
+    def to_thin(counts):
+        # print(counts)
+        #                          dummy        | correct      | incorrect
+        thin = interweave_3_arrays(counts[2][1:], counts[0][1:], counts[1][1:])
+        correct_val = counts[2][0]
+        # print(f"correct_val = {correct_val}")
+        thin = np.insert(thin, 0, correct_val, axis=0)
+        return thin
+
+    thin_counts = np.array([to_thin(history) for history in data])
+    return thin_counts
+
+
+def transform_counts_to_thin_format_blank(data):
+    thin_counts = transform_counts_to_thin_format(data)
+    thin_counts_blank = np.array([zero_if_1d(history) for history in thin_counts])
+    return thin_counts_blank
 
 
 def split_snapshot_history_single(data, size):

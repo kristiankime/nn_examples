@@ -57,6 +57,20 @@ df_validate = pd.DataFrame(
     data=([ac[2][0], pfa_prediction(ac, coef)] for ac in answer_counts_validate),
     columns=['pfa_cor', 'pfa_pred']
 )
+
+
+# def update(val):
+#     if val < .3:
+#         return val * .9
+#     else:
+#         ret = val * 1.3
+#         if ret > 1:
+#             ret = 1
+#         return ret
+#
+#
+# df_validate['pfa_pred'] = df_validate['pfa_pred'].apply(update)
+
 df_validate.to_csv(os.path.join(run_dir, f'pfa_pred_vs_actual_validate.csv'), index=False)
 
 # for ac in answer_counts:

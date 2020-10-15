@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import datetime
 import matplotlib.pyplot as plt
+import scipy.stats as stats
 
 from tensorflow import keras
 
@@ -14,6 +15,7 @@ from numpy import array
 from tensorflow.keras.models import Model
 
 from util.logs import stdout_add_file, stdout_reset
+from util.util import pick_1_in_group
 from util.util import group_snapshots, read_numpy_3d_array_from_txt, drange_inc
 from models import lstm_autoencoder
 from util.data import split_snapshot_history_single, split_snapshot_history
@@ -103,6 +105,35 @@ ax1.plot(dnn_gb['rate'], dnn_gb['actual_rate'], '-o', label='dnn')
 ax1.plot(dnn_d_gb['rate'], dnn_d_gb['actual_rate'], '-o', label='dnn_d')
 ax1.legend(loc='upper left')
 fig1.savefig(os.path.join(result_dir, 'pfa_dnn_dash_compare_all.pdf'), bbox_inches='tight')
+
+
+# Do Chi^2 on 1 user from each group
+pfa_vs_dnn_binned_all_s1 = pick_1_in_group(pfa_vs_dnn_binned, 'anon_id', 'seq')
+pfa_vs_dnn_binned_all_s1.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_w_dash_bin_validate_all_s1.csv'), index=False)
+picked = list(pfa_vs_dnn_binned_all_s1['seq'])
+# use the list to select snapshots
+pfa_vs_dnn_binned_s1 = pfa_vs_dnn_binned_all_s1[picked].sample(n=110)
+
+pfa_vs_dnn_binned_s1.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_w_dash_bin_validate_s1.csv'), index=False)
+# gb for the 100
+pfa_gb_s1 = binned_counts(pfa_vs_dnn_binned_s1, actual_col='correct', bin_col='pfa_pred' + '_range')
+pfa_d_gb_s1 = binned_counts(pfa_vs_dnn_binned_s1, actual_col='correct', bin_col='pfa_d_pred' + '_range')
+dnn_gb_s1 = binned_counts(pfa_vs_dnn_binned_s1, actual_col='correct', bin_col='dnn_pred' + '_range')
+dnn_d_gb_s1 = binned_counts(pfa_vs_dnn_binned_s1, actual_col='correct', bin_col='dnn_d_pred' + '_range')
+
+c2_stats_pfa = stats.chisquare(f_obs=pfa_gb_s1.dropna()['actual'], f_exp=pfa_gb_s1.dropna()['count_expected'])
+print(f'c2_stats_pfa {c2_stats_pfa}')
+c2_stats_pfa_d = stats.chisquare(f_obs=pfa_d_gb_s1.dropna()['actual'], f_exp=pfa_d_gb_s1.dropna()['count_expected'])
+print(f'c2_stats_pfa_d {c2_stats_pfa_d}')
+c2_stats_dnn = stats.chisquare(f_obs=dnn_gb_s1.dropna()['actual'], f_exp=dnn_gb_s1.dropna()['count_expected'])
+print(f'c2_stats_dnn {c2_stats_dnn}')
+c2_stats_dnn_d = stats.chisquare(f_obs=dnn_d_gb_s1.dropna()['actual'], f_exp=dnn_d_gb_s1.dropna()['count_expected'])
+print(f'c2_stats_dnn_d {c2_stats_dnn_d}')
+
+pfa_gb_s1.to_csv(os.path.join(result_dir, f'pfa_gb_s1.csv'), index=False)
+pfa_gb_s1.to_csv(os.path.join(result_dir, f'pfa_gb_s1.csv'), index=False)
+pfa_gb_s1.to_csv(os.path.join(result_dir, f'pfa_gb_s1.csv'), index=False)
+pfa_gb_s1.to_csv(os.path.join(result_dir, f'pfa_gb_s1.csv'), index=False)
 
 
     # plt.plot(pfa_gb['rate'], pfa_gb['rate'], '-o', label='rate')
