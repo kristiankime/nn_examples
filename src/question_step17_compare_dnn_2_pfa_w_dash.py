@@ -112,28 +112,42 @@ pfa_vs_dnn_binned_all_s1 = pick_1_in_group(pfa_vs_dnn_binned, 'anon_id', 'seq')
 pfa_vs_dnn_binned_all_s1.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_w_dash_bin_validate_all_s1.csv'), index=False)
 picked = list(pfa_vs_dnn_binned_all_s1['seq'])
 # use the list to select snapshots
-pfa_vs_dnn_binned_s1 = pfa_vs_dnn_binned_all_s1[picked].sample(n=110)
 
-pfa_vs_dnn_binned_s1.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_w_dash_bin_validate_s1.csv'), index=False)
+# Chi^2 has a "penalty" for a lot of data points 100 seem to be a recommended number
+# so run in each with 100
+
+
+pfa_vs_dnn_binned_s1_pfa = pfa_vs_dnn_binned_all_s1[picked].sample(n=100)
+pfa_vs_dnn_binned_s1_pfa.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_w_dash_bin_validate_s1_pfa.csv'), index=False)
 # gb for the 100
-pfa_gb_s1 = binned_counts(pfa_vs_dnn_binned_s1, actual_col='correct', bin_col='pfa_pred' + '_range')
-pfa_d_gb_s1 = binned_counts(pfa_vs_dnn_binned_s1, actual_col='correct', bin_col='pfa_d_pred' + '_range')
-dnn_gb_s1 = binned_counts(pfa_vs_dnn_binned_s1, actual_col='correct', bin_col='dnn_pred' + '_range')
-dnn_d_gb_s1 = binned_counts(pfa_vs_dnn_binned_s1, actual_col='correct', bin_col='dnn_d_pred' + '_range')
-
+pfa_gb_s1 = binned_counts(pfa_vs_dnn_binned_s1_pfa, actual_col='correct', bin_col='pfa_pred' + '_range')
 c2_stats_pfa = stats.chisquare(f_obs=pfa_gb_s1.dropna()['actual'], f_exp=pfa_gb_s1.dropna()['count_expected'])
 print(f'c2_stats_pfa {c2_stats_pfa}')
+pfa_gb_s1.to_csv(os.path.join(result_dir, f'pfa_gb_s1.csv'), index=False)
+
+
+pfa_vs_dnn_binned_s1_pfa_d = pfa_vs_dnn_binned_all_s1[picked].sample(n=100)
+pfa_vs_dnn_binned_s1_pfa_d.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_w_dash_bin_validate_s1_pfa_d.csv'), index=False)
+pfa_d_gb_s1 = binned_counts(pfa_vs_dnn_binned_s1_pfa_d, actual_col='correct', bin_col='pfa_d_pred' + '_range')
 c2_stats_pfa_d = stats.chisquare(f_obs=pfa_d_gb_s1.dropna()['actual'], f_exp=pfa_d_gb_s1.dropna()['count_expected'])
 print(f'c2_stats_pfa_d {c2_stats_pfa_d}')
+pfa_d_gb_s1.to_csv(os.path.join(result_dir, f'pfa_d_gb_s1.csv'), index=False)
+
+
+pfa_vs_dnn_binned_s1_dnn = pfa_vs_dnn_binned_all_s1[picked].sample(n=100)
+pfa_vs_dnn_binned_s1_dnn.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_w_dash_bin_validate_s1_dnn.csv'), index=False)
+dnn_gb_s1 = binned_counts(pfa_vs_dnn_binned_s1_dnn, actual_col='correct', bin_col='dnn_pred' + '_range')
 c2_stats_dnn = stats.chisquare(f_obs=dnn_gb_s1.dropna()['actual'], f_exp=dnn_gb_s1.dropna()['count_expected'])
 print(f'c2_stats_dnn {c2_stats_dnn}')
+dnn_gb_s1.to_csv(os.path.join(result_dir, f'dnn_gb_s1.csv'), index=False)
+
+
+pfa_vs_dnn_binned_s1_dnn_d = pfa_vs_dnn_binned_all_s1[picked].sample(n=100)
+pfa_vs_dnn_binned_s1_dnn_d.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_w_dash_bin_validate_s1_dnn_d.csv'), index=False)
+dnn_d_gb_s1 = binned_counts(pfa_vs_dnn_binned_s1_dnn_d, actual_col='correct', bin_col='dnn_d_pred' + '_range')
 c2_stats_dnn_d = stats.chisquare(f_obs=dnn_d_gb_s1.dropna()['actual'], f_exp=dnn_d_gb_s1.dropna()['count_expected'])
 print(f'c2_stats_dnn_d {c2_stats_dnn_d}')
-
-pfa_gb_s1.to_csv(os.path.join(result_dir, f'pfa_gb_s1.csv'), index=False)
-pfa_gb_s1.to_csv(os.path.join(result_dir, f'pfa_gb_s1.csv'), index=False)
-pfa_gb_s1.to_csv(os.path.join(result_dir, f'pfa_gb_s1.csv'), index=False)
-pfa_gb_s1.to_csv(os.path.join(result_dir, f'pfa_gb_s1.csv'), index=False)
+dnn_d_gb_s1.to_csv(os.path.join(result_dir, f'dnn_d_gb_s1.csv'), index=False)
 
 
     # plt.plot(pfa_gb['rate'], pfa_gb['rate'], '-o', label='rate')
