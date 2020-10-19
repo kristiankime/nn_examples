@@ -69,6 +69,11 @@ pfa_vs_dnn = pd.concat([
 
 pfa_vs_dnn.to_csv(os.path.join(result_dir, f'pfa_pred_vs_dnn_pred_w_dash_validate.csv'), index=False)
 
+
+# Compute correlations
+pfa_vs_dnn_just_pred = pfa_vs_dnn.loc[:,['pfa_pred', 'pfa_d_pred', 'dnn_pred', 'dnn_d_pred']]
+pfa_vs_dnn_just_pred.corr()
+
 bins = list(drange_inc(0, 1, '0.05')) # 5% point bin size
 bin_labels = list(range(1, 21))
 base_cols = ['pfa', 'pfa_d', 'dnn', 'dnn_d']
@@ -97,8 +102,28 @@ pfa_d_gb = binned_counts(pfa_vs_dnn_binned, actual_col='correct', bin_col='pfa_d
 dnn_gb = binned_counts(pfa_vs_dnn_binned, actual_col='correct', bin_col='dnn_pred' + '_range')
 dnn_d_gb = binned_counts(pfa_vs_dnn_binned, actual_col='correct', bin_col='dnn_d_pred' + '_range')
 
+
+
+
+
+# ========= Plot
+# https://www.codespeedy.com/fill-area-with-color-in-matplotlib-with-python/
+def f1(x):
+    return x - .05
+def f2(x):
+    return x
+x = np.arange(0.01,1,0.1)
+y1 = f1(x)
+y2 = f2(x)
+plt.plot(x,y1,'k--')
+plt.plot(x,y2,'k--')
+
+
+    
+
 fig1, ax1 = plt.subplots()
-ax1.plot(pfa_gb['rate'], pfa_gb['rate'], '-o', label='rate')
+ax1.fill_between(x, y1, y2, color='#539ecd')
+# ax1.plot(pfa_gb['rate'], pfa_gb['rate'], '-o', label='rate')
 ax1.plot(pfa_gb['rate'], pfa_gb['actual_rate'], '-o', label='pfa')
 ax1.plot(pfa_d_gb['rate'], pfa_d_gb['actual_rate'], '-o', label='pfa_d')
 ax1.plot(dnn_gb['rate'], dnn_gb['actual_rate'], '-o', label='dnn')
