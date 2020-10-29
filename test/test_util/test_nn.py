@@ -5,7 +5,7 @@ import pandas as pd
 
 from pandas.testing import assert_frame_equal
 
-from util.nn import nn_one_hot_skills, nn_dashboard_data, nn_dashboard
+from util.nn import nn_one_hot_skills, nn_dashboard_data, nn_dashboard, nn_dashboard_data_skill_flip
 
 from numpy import array
 from numpy.testing import assert_array_equal, assert_almost_equal, assert_equal
@@ -45,6 +45,38 @@ class TestDataMethods(unittest.TestCase):
             [0.4, 0.5, 0.6, 1., 0., 0.],
             [0.4, 0.5, 0.6, 0., 1., 0.],
             [0.4, 0.5, 0.6, 0., 0., 1.],
+        ])
+        assert_equal(actual, expected)
+
+    def test_nn_dashboard_data_skill_flip__works_with_1(self):
+        actual = nn_dashboard_data_skill_flip(
+            # First 3 are embedding last are skills
+            embedded_history=array([0.4, 0.5, 0.6, 1., 0., 0.]),
+            num_diffs=0,
+            num_skills=3,
+            diff_ind=-1,
+            flip_value=1.)  # set to on
+
+        expected = array([
+            [0.4, 0.5, 0.6, 1., 0., 0.],
+            [0.4, 0.5, 0.6, 1., 1., 0.],
+            [0.4, 0.5, 0.6, 1., 0., 1.],
+        ])
+        assert_equal(actual, expected)
+
+    def test_nn_dashboard_data_skill_flip__works_with_0(self):
+        actual = nn_dashboard_data_skill_flip(
+            # First 3 are embedding last are skills
+            embedded_history=array([0.4, 0.5, 0.6, 0., 1., 1.]),
+            num_diffs=0,
+            num_skills=3,
+            diff_ind=-1,
+            flip_value=0.)  # set to off
+
+        expected = array([
+            [0.4, 0.5, 0.6, 0., 1., 1.],
+            [0.4, 0.5, 0.6, 0., 0., 1.],
+            [0.4, 0.5, 0.6, 0., 1., 0.],
         ])
         assert_equal(actual, expected)
 

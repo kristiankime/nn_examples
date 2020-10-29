@@ -39,3 +39,32 @@ def nn_dashboard(embedded_history, probability_model, num_diffs: int, num_skills
     predictions = probability_model.predict(data)
     correct_prediction = predictions[:,1].transpose()
     return correct_prediction
+
+
+def nn_dashboard_data_skill_flip(embedded_history, num_diffs: int, num_skills: int, diff_ind: int, flip_value: float):
+    def nn_embedded_with_skill_n(skill_ind: int):
+        # swap selected final questions skills with the new value
+        data_counts_skill_n_flip = np.copy(embedded_history)
+        data_counts_skill_n_flip[-(num_skills - skill_ind)] = flip_value
+
+        # print(f"data_counts_skill_n = {data_counts_skill_n_flip}")
+
+        return data_counts_skill_n_flip
+
+    # for each skill compute the value int the dashboard
+    embedded_data = [nn_embedded_with_skill_n(skill_ind) for skill_ind in range(0, num_skills)]
+    return np.array(embedded_data)
+
+
+def nn_dashboard_skill_flip(embedded_history, probability_model, num_diffs: int, num_skills: int, diff_ind: int):
+    data_flip_on = nn_dashboard_data_skill_flip(embedded_history, num_diffs, num_skills, diff_ind, 1.)
+    data_flip_off = nn_dashboard_data_skill_flip(embedded_history, num_diffs, num_skills, diff_ind, 0.)
+
+    # Get predictions when skill is flipped on and off
+    predictions_on = probability_model.predict(data_flip_on)
+    correct_prediction_on = predictions_on[:, 1].transpose()
+
+    predictions_off = probability_model.predict(data_flip_off)
+    correct_prediction_off = predictions_off[:, 1].transpose()
+
+    return correct_prediction_on - correct_prediction_off
