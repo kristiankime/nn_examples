@@ -5,7 +5,7 @@ import pandas as pd
 
 from pandas.testing import assert_frame_equal
 
-from util.nn import nn_one_hot_skills, nn_dashboard_data, nn_dashboard, nn_dashboard_data_skill_flip
+from util.nn import nn_one_hot_skills, nn_one_cold_skills, nn_dashboard_data, nn_dashboard, nn_dashboard_data_skill_flip, nn_dashboard_data_skill_inverse
 
 from numpy import array
 from numpy.testing import assert_array_equal, assert_almost_equal, assert_equal
@@ -18,6 +18,7 @@ from util.data import question_history_pd, split_snapshot_history, split_snapsho
 
 class TestDataMethods(unittest.TestCase):
 
+    # ============ One Hot/Cold Skills =================
     def test_nn_one_hot_skills__difficulty_specified(self):
         actual = nn_one_hot_skills(num_diffs=2, num_skills=3, diff_ind=0, skill_ind=2)
         expected = array([1., 0.,    0., 0., 1.])
@@ -33,6 +34,22 @@ class TestDataMethods(unittest.TestCase):
         expected = array([0., 1., 0.])
         assert_equal(actual, expected)
 
+    def test_nn_one_nn_one_cold_skills__difficulty_specified(self):
+        actual = nn_one_cold_skills(num_diffs=2, num_skills=3, diff_ind=0, skill_ind=2)
+        expected = array([0., 1.,    1., 1., 0.])
+        assert_equal(actual, expected)
+
+    def test_nn_onenn_one_cold_skills__has_diff_none_selected(self):
+        actual = nn_one_cold_skills(num_diffs=2, num_skills=3, diff_ind=-1, skill_ind=1)
+        expected = array([1., 1.,    1., 0., 1.])
+        assert_equal(actual, expected)
+
+    def test_nn_one_nn_one_cold_skills__no_difficulty_levels(self):
+        actual = nn_one_cold_skills(num_diffs=0, num_skills=3, diff_ind=-1, skill_ind=1)
+        expected = array([1., 0., 1.])
+        assert_equal(actual, expected)
+
+    # ============ nn dashboard =================
     def test_nn_dashboard_data__works(self):
         actual = nn_dashboard_data(
             # First 3 are embedding last are skills
@@ -48,6 +65,7 @@ class TestDataMethods(unittest.TestCase):
         ])
         assert_equal(actual, expected)
 
+    # ============ nn dashboard flipped skill =================
     def test_nn_dashboard_data_skill_flip__works_with_1(self):
         actual = nn_dashboard_data_skill_flip(
             # First 3 are embedding last are skills
@@ -79,6 +97,40 @@ class TestDataMethods(unittest.TestCase):
             [0.4, 0.5, 0.6, 0., 1., 0.],
         ])
         assert_equal(actual, expected)
+
+    # ============ nn dashboard flipped skill =================
+    def test_nn_dashboard_data_skill_inverse__works_with_1(self):
+        actual = nn_dashboard_data_skill_inverse(
+            # First 3 are embedding last are skills
+            embedded_history=array([0.4, 0.5, 0.6, 1., 0., 0.]),
+            num_diffs=0,
+            num_skills=3,
+            diff_ind=-1,
+            one_hot_or_not=True)  # set to on
+
+        expected = array([
+            [0.4, 0.5, 0.6, 1., 0., 0.],
+            [0.4, 0.5, 0.6, 0., 1., 0.],
+            [0.4, 0.5, 0.6, 0., 0., 1.],
+        ])
+        assert_equal(actual, expected)
+
+    def test_nn_dashboard_data_skill_inverse__works_with_0(self):
+        actual = nn_dashboard_data_skill_inverse(
+            # First 3 are embedding last are skills
+            embedded_history=array([0.4, 0.5, 0.6, 0., 1., 1.]),
+            num_diffs=0,
+            num_skills=3,
+            diff_ind=-1,
+            one_hot_or_not=False)  # set to off
+
+        expected = array([
+            [0.4, 0.5, 0.6, 0., 1., 1.],
+            [0.4, 0.5, 0.6, 1., 0., 1.],
+            [0.4, 0.5, 0.6, 1., 1., 0.],
+        ])
+        assert_equal(actual, expected)
+
 
     # def test_pfa_dashboard__using_diff(self):
     #     coef = pfa_coef_counts(pd.DataFrame(

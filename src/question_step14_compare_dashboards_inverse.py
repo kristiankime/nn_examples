@@ -41,7 +41,7 @@ lstm_epochs = 245
 np.set_printoptions(linewidth=200, threshold=(full_history_length + 1) * model_history_length * feature_num) # unset with np.set_printoptions()
 
 # load dir
-load_nn_dir = os.path.join('dashboards', f'nn_dashboard_flip')
+load_nn_dir = os.path.join('dashboards', f'nn_dashboard_inverse')
 load_pfa_dir = os.path.join('dashboards', f'pfa_dashboard')
 
 # model load dir
@@ -50,7 +50,7 @@ load_pfa_dir = os.path.join('dashboards', f'pfa_dashboard')
 
 # output location
 # run_dir_load = os.path.join('runs', f'run_embedded_l1-{pred_model_layer_1}_l2-{pred_model_layer_2}_e{pred_epochs}')
-run_dir = os.path.join('dashboards', f'compare_dashboards_flip')
+run_dir = os.path.join('dashboards', f'compare_dashboards_inverse')
 
 if not os.path.exists(run_dir):
     os.makedirs(run_dir)
@@ -60,7 +60,7 @@ stdout_add_file(os.path.join(run_dir, 'log.txt'))
 
 skills_cols = ["very_easy", "easy", "medium", "hard", "very_hard", "Graphing", "Numerical", "Verbal", "Algebraic", "Precalc", "Trig", "Logs", "Exp", "Alt.Var.Names", "Abstract.Constants", "Limits...Continuity", "Continuity..Definition", "Derivative..Definition..Concept", "Derivative..Shortcuts", "Product.Rule", "Quotient.Rule", "Chain.Rule", "Implicit.Differentiation", "Function.Analysis", "Applications", "Antiderivatives"]
 # skills_cols = [s.replace(".", "_") for s in skills_cols_raw]
-nn_dashboard = pd.read_csv(os.path.join(load_nn_dir, f'nn_dashboard_flip_validate.csv'), header=None).iloc[:,0:26]
+nn_dashboard = pd.read_csv(os.path.join(load_nn_dir, f'nn_dashboard_inverse_validate.csv'), header=None).iloc[:,0:26]
 nn_dashboard.columns = skills_cols
 pfa_dashboard = pd.read_csv(os.path.join(load_pfa_dir, f'pfa_dashboard_diff_none_validate.csv'), header=None).iloc[:,0:26]
 pfa_dashboard.columns = skills_cols
@@ -72,8 +72,7 @@ nn_dashboard_normalized = pd.DataFrame(nn_scaled)
 nn_dashboard_normalized.columns = skills_cols
 min(nn_dashboard_normalized['very_easy'])
 max(nn_dashboard_normalized['very_easy'])
-min(nn_dashboard_normalized['Algebraic'])
-max(nn_dashboard_normalized['Algebraic'])
+
 
 min_max_scaler_pfa = preprocessing.MinMaxScaler()
 pfa_scaled = min_max_scaler_pfa.fit_transform(pfa_dashboard.values)
@@ -101,7 +100,8 @@ def plot_compare(comp, skill, name):
 # for skill in ['very_easy']:
 for skill in skills_cols:
 
-    comp = compare_df(nn_dashboard_normalized, "nn", pfa_dashboard_normalized, "pfa", skill)
+    # comp = compare_df(nn_dashboard, "nn", pfa_dashboard, "pfa", skill)
+    comp = compare_df(nn_dashboard_normalized, "nn", pfa_dashboard_normalized   , "pfa", skill)
     comp_1000 = comp.sample(n=1000)
     comp_sorted_nn = comp.sort_values(by=f'nn_{skill}')
     comp_sorted_pfa = comp.sort_values(by=f'pfa_{skill}')
