@@ -98,6 +98,7 @@ def plot_compare(comp, skill, name):
     fig1.savefig(os.path.join(run_dir, skill_fn, f'pfa_dnn_dash_compare_{skill_fn}_{name}.pdf'), bbox_inches='tight')
 
 
+corr_list = []
 # for skill in ['very_easy']:
 for skill in skills_cols:
 
@@ -112,6 +113,10 @@ for skill in skills_cols:
     if not os.path.exists(os.path.join(run_dir, skill_fn)):
             os.makedirs(os.path.join(run_dir, skill_fn))
 
+    # build a correlation CSV
+    corr = comp.corr().iloc[0][1]
+    corr_list.append((skill, corr))
+
     # write out the correlation
     with open(os.path.join(run_dir, skill_fn, f'corr_{skill_fn}.txt'), "w") as text_file:
         text_file.write(str(comp.corr()))
@@ -124,8 +129,11 @@ for skill in skills_cols:
     plot_compare(comp_1000_sorted_nn, skill, "sorted_nn_1k")
     plot_compare(comp_1000_sorted_pfa, skill, "sorted_pfa_1k")
 
+# create DataFrame using data
+corr_df = pd.DataFrame(corr_list, columns =['skill', 'correlation'])
+corr_df.to_csv(os.path.join(run_dir, "correlations.csv"), header=True, index=False)
 
-    # # A raw diagram of all the values
+# # A raw diagram of all the values
     # fig1, ax1 = plt.subplots()
     # row_nums = range(0, len(comp.index))
     # ax1.plot(row_nums, comp[f'nn_{skill}'], '-o', label=f'nn_{skill}')
