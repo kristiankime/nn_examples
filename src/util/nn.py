@@ -21,6 +21,10 @@ def nn_one_cold_skills(num_diffs: int, num_skills: int, diff_ind: int, skill_ind
     return ret
 
 
+def nn_all_hot_skills(num_diffs: int, num_skills: int, diff_ind: int, skill_ind: int):
+    return np.ones(num_diffs + num_skills, dtype=float)
+
+
 # ============ nn dashboard =================
 def nn_dashboard_data(embedded_history, num_diffs: int, num_skills: int, diff_ind: int):
     def nn_embedded_with_skill_n(skill_ind: int):
@@ -43,6 +47,9 @@ def nn_dashboard_data(embedded_history, num_diffs: int, num_skills: int, diff_in
 
 
 def nn_dashboard(embedded_history, probability_model, num_diffs: int, num_skills: int, diff_ind: int):
+    """
+    Run the prediction with all skills set to 0 except the one under consideration.
+    """
     data = nn_dashboard_data(embedded_history, num_diffs, num_skills, diff_ind)
 
     # Get predictions from the model
@@ -68,6 +75,10 @@ def nn_dashboard_data_skill_flip(embedded_history, num_diffs: int, num_skills: i
 
 
 def nn_dashboard_skill_flip(embedded_history, probability_model, num_diffs: int, num_skills: int, diff_ind: int):
+    """
+    Consider the next question the student was going to be asked.
+    Now use the difference of predictions between having the skill under consideration on and off.
+    """
     data_flip_on = nn_dashboard_data_skill_flip(embedded_history, num_diffs, num_skills, diff_ind, 1.)
     data_flip_off = nn_dashboard_data_skill_flip(embedded_history, num_diffs, num_skills, diff_ind, 0.)
 
@@ -101,8 +112,47 @@ def nn_dashboard_data_skill_inverse(embedded_history, num_diffs: int, num_skills
 
 
 def nn_dashboard_skill_inverse(embedded_history, probability_model, num_diffs: int, num_skills: int, diff_ind: int):
+    """
+    Use the difference in prediction values between [all skills off except the considered] and [all skills on except the considered]
+    """
     data_inverse_on = nn_dashboard_data_skill_inverse(embedded_history, num_diffs, num_skills, diff_ind, True)
     data_inverse_off = nn_dashboard_data_skill_inverse(embedded_history, num_diffs, num_skills, diff_ind, False)
+
+    # Get predictions when skill is flipped on and off
+    predictions_on = probability_model.predict(data_inverse_on)
+    correct_prediction_on = predictions_on[:, 1].transpose()
+
+    predictions_off = probability_model.predict(data_inverse_off)
+    correct_prediction_off = predictions_off[:, 1].transpose()
+
+    return correct_prediction_on - correct_prediction_off
+
+
+# ============ nn dashboard neg skill =================
+def nn_dashboard_data_skill_neg(embedded_history, num_diffs: int, num_skills: int, diff_ind: int, one_hot_or_not: bool):
+    def nn_embedded_with_skill_n(skill_ind: int):
+        # switch out the final question information for a "one hot/cold" where one skill is turned on/off
+        if one_hot_or_not:
+            one_set = nn_all_hot_skills(num_diffs=num_diffs, num_skills=num_skills, diff_ind=diff_ind, skill_ind=skill_ind)
+        else:
+            one_set = nn_one_hot_skills(num_diffs=num_diffs, num_skills=num_skills, diff_ind=diff_ind, skill_ind=skill_ind)
+
+        data_counts_skill_n = np.copy(embedded_history)
+        data_counts_skill_n[-num_skills:] = one_set
+
+        return data_counts_skill_n
+
+    # for each skill compute the value int the dashboard
+    embedded_data = [nn_embedded_with_skill_n(skill_ind) for skill_ind in range(0, num_skills)]
+    return np.array(embedded_data)
+
+
+def nn_dashboard_skill_neg(embedded_history, probability_model, num_diffs: int, num_skills: int, diff_ind: int):
+    """
+    Use the difference in prediction values between [all skills on] and [all skills off except the considered]
+    """
+    data_inverse_on = nn_dashboard_data_skill_neg(embedded_history, num_diffs, num_skills, diff_ind, True)
+    data_inverse_off = nn_dashboard_data_skill_neg(embedded_history, num_diffs, num_skills, diff_ind, False)
 
     # Get predictions when skill is flipped on and off
     predictions_on = probability_model.predict(data_inverse_on)

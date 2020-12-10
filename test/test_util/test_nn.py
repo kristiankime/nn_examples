@@ -5,7 +5,7 @@ import pandas as pd
 
 from pandas.testing import assert_frame_equal
 
-from util.nn import nn_one_hot_skills, nn_one_cold_skills, nn_dashboard_data, nn_dashboard, nn_dashboard_data_skill_flip, nn_dashboard_data_skill_inverse
+from util.nn import nn_one_hot_skills, nn_one_cold_skills, nn_dashboard_data, nn_dashboard, nn_dashboard_data_skill_flip, nn_dashboard_data_skill_inverse, nn_dashboard_data_skill_neg
 
 from numpy import array
 from numpy.testing import assert_array_equal, assert_almost_equal, assert_equal
@@ -98,7 +98,7 @@ class TestDataMethods(unittest.TestCase):
         ])
         assert_equal(actual, expected)
 
-    # ============ nn dashboard flipped skill =================
+    # ============ nn dashboard inverse skill =================
     def test_nn_dashboard_data_skill_inverse__works_with_1(self):
         actual = nn_dashboard_data_skill_inverse(
             # First 3 are embedding last are skills
@@ -131,6 +131,39 @@ class TestDataMethods(unittest.TestCase):
         ])
         assert_equal(actual, expected)
 
+
+    # ============ nn dashboard inverse skill =================
+    def test_nn_dashboard_data_skill_neg__works_with_1(self):
+        actual = nn_dashboard_data_skill_neg(
+            # First 3 are embedding last are skills
+            embedded_history=array([0.4, 0.5, 0.6, 1., 0., 0.]),
+            num_diffs=0,
+            num_skills=3,
+            diff_ind=-1,
+            one_hot_or_not=True)  # set to on
+
+        expected = array([
+            [0.4, 0.5, 0.6, 1., 1., 1.],
+            [0.4, 0.5, 0.6, 1., 1., 1.],
+            [0.4, 0.5, 0.6, 1., 1., 1.],
+        ])
+        assert_equal(actual, expected)
+
+    def test_nn_dashboard_data_skill_neg__works_with_0(self):
+        actual = nn_dashboard_data_skill_neg(
+            # First 3 are embedding last are skills
+            embedded_history=array([0.4, 0.5, 0.6, 0., 1., 1.]),
+            num_diffs=0,
+            num_skills=3,
+            diff_ind=-1,
+            one_hot_or_not=False)  # set to off
+
+        expected = array([
+            [0.4, 0.5, 0.6, 1., 0., 0.],
+            [0.4, 0.5, 0.6, 0., 1., 0.],
+            [0.4, 0.5, 0.6, 0., 0., 1.],
+        ])
+        assert_equal(actual, expected)
 
     # def test_pfa_dashboard__using_diff(self):
     #     coef = pfa_coef_counts(pd.DataFrame(

@@ -468,9 +468,11 @@ class TestUtilMethods(unittest.TestCase):
                        [0., 0., 1.,],],
                       ], dtype=np.float32)
 
-        write_numpy_3d_array_as_txt(data, '../../test_data/test_write_numpy_3d_array_as_txt_and_read_numpy_3d_array_from_txt.txt', fmt='%.1e')
+        import os
+        print(f"cwd = {os.getcwd()}")
+        write_numpy_3d_array_as_txt(data, '../test_data/test_write_numpy_3d_array_as_txt_and_read_numpy_3d_array_from_txt.txt', fmt='%.1e')
 
-        result = read_numpy_3d_array_from_txt('../../test_data/test_write_numpy_3d_array_as_txt_and_read_numpy_3d_array_from_txt.txt')
+        result = read_numpy_3d_array_from_txt('../test_data/test_write_numpy_3d_array_as_txt_and_read_numpy_3d_array_from_txt.txt')
         assert_array_equal(result, data)
 
     # ======== pick_1_in_group =========
