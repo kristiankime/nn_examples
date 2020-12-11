@@ -2,6 +2,7 @@ import os
 import numpy as np
 import pandas as pd
 
+from util.questions import questions_details_prep
 
 def questions_links_prep(file):
     # questions_links = pd.io.parsers.read_csv(os.path.join('data' , 'questions_links.csv'))
@@ -11,15 +12,15 @@ def questions_links_prep(file):
     return questions_links
 
 
-def questions_details_prep(file):
-    questions_details = pd.io.parsers.read_csv(file)
-    questions_details = questions_details.fillna(False)
-    cols = questions_details.columns.values[2:]
-    cols_dict = dict([(c, 'float32') for c in cols])
-    questions_details = questions_details.astype(cols_dict)
-    questions_details = questions_details.drop(columns=['link', 'tagged', 'MATH'])
-    questions_details = questions_details.set_index('question')
-    return questions_details
+# def questions_details_prep(file):
+#     questions_details = pd.io.parsers.read_csv(file)
+#     questions_details = questions_details.fillna(False)
+#     cols = questions_details.columns.values[2:]
+#     cols_dict = dict([(c, 'float32') for c in cols])
+#     questions_details = questions_details.astype(cols_dict)
+#     questions_details = questions_details.drop(columns=['link', 'tagged', 'MATH'])
+#     questions_details = questions_details.set_index('question')
+#     return questions_details
 
 
 questions_links = questions_links_prep(os.path.join('data', 'questions_links.csv'))

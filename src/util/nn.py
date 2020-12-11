@@ -3,6 +3,8 @@ import math
 import numpy as np
 import pandas as pd
 
+from tensorflow import keras
+from util.questions import questions_with_skill, prepend_embedded_to_question_skills
 
 # ============ One Hot/Cold Skills =================
 def nn_one_hot_skills(num_diffs: int, num_skills: int, diff_ind: int, skill_ind: int):
@@ -162,3 +164,26 @@ def nn_dashboard_skill_neg(embedded_history, probability_model, num_diffs: int, 
     correct_prediction_off = predictions_off[:, 1].transpose()
 
     return correct_prediction_on - correct_prediction_off
+
+
+# ============ nn dashboard actual questions =================
+def nn_dashboard_skill_all_questions(embedded_history: pd.array, probability_model: keras.Model, qd: pd.DataFrame, num_diffs: int, num_skills: int, diff_ind: int):
+    """
+    Use the difference in average prediction values between all questions with the skill and those without
+    """
+    ret = []
+    for skill_ind in range(0, num_skills):
+        (on_skill, off_skill) = questions_with_skill(question_data=qd, num_diffs=num_diffs, num_skills=num_skills, diff_ind=diff_ind, skill_ind=skill_ind)
+
+        on_emb = prepend_embedded_to_question_skills(embedded_history=embedded_history, qd=on_skill, num_skills=num_skills)
+        off_emb = prepend_embedded_to_question_skills(embedded_history=embedded_history, qd=off_skill, num_skills=num_skills)
+
+        predictions_on = probability_model.predict(on_emb)
+        correct_prediction_on: np.array = predictions_on[:, 1].transpose()
+
+        predictions_off = probability_model.predict(off_emb)
+        correct_prediction_off: np.array = predictions_off[:, 1].transpose()
+
+        skill_level = np.average(correct_prediction_on) - np.average(correct_prediction_off)
+        ret.append(skill_level)
+    return np.array(ret)
