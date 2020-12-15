@@ -21,14 +21,17 @@ def questions_with_skill(question_data: pd.DataFrame, num_diffs: int, num_skills
     return skill_on, skill_off
 
 
-def prepend_embedded_to_question_skills(embedded_history: np.array, qd: pd.DataFrame, num_skills: int) -> pd.DataFrame:
+def prepend_embedded_to_question_skills(embedded_history: np.array, qd: pd.DataFrame, num_skills: int):
     # embedded_no_skills = np.delete(np.copy(embedded_history), range(embedded_history.size - num_skills, embedded_history.size))
     embedded_no_skills = embedded_history[0: embedded_history.size - num_skills]
     # print(f"embedded_no_skills \n{embedded_no_skills}")
 
-    # duplicate the embedding in every row
-    embedded_df = pd.DataFrame(data=[embedded_no_skills for r in range(0, len(qd))])
-    # print(f"embedded_df \n{embedded_df}")
 
-    # then append the
-    return pd.concat([embedded_df, qd], axis=1).to_numpy()
+    # # duplicate the embedding in every row
+    # embedded_df = pd.DataFrame(data=[embedded_no_skills for r in range(0, len(qd))])
+    # # print(f"embedded_df \n{embedded_df}")
+    #
+    # # then append the
+    # return pd.concat([embedded_df, qd], axis=1).to_numpy()
+    rows = [np.append(embedded_no_skills, row) for row in qd.to_numpy()]
+    return np.array(rows)

@@ -6,6 +6,7 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 import datetime
+
 from tensorflow import keras
 
 from numpy import array
@@ -86,14 +87,16 @@ snapshots_validate_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'sna
 print(f"computing dashboard")
 len = len(snapshots_validate_embedded)
 cur = 0
-print(f"on {cur} of {len}")
+start_time = datetime.datetime.now()
+print(f"on {cur} of {len} time {start_time}")
 snapshots_validate_embedded_dashboard = []
 for ac in snapshots_validate_embedded.to_numpy():
     res = nn_dashboard_skill_all_questions(ac, probability_model, questions_skills, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1)
     snapshots_validate_embedded_dashboard.append(res)
     cur = cur + 1
-    if cur % 100 == 0:
-        print(f"on {cur} of {len}")
+    if cur % 1000 == 0:
+        print(f"on {cur} of {len} timedelta {datetime.datetime.now() - start_time}")
+
 print(f"saving dashboard")
 np.savetxt(os.path.join(run_dir, f'nn_dashboard_questions_all_validate.csv'), snapshots_validate_embedded_dashboard, fmt='%1.4f', delimiter=",")
 # ========= answer / label for current question
@@ -101,20 +104,20 @@ print(f"saving answers")
 np.savetxt(os.path.join(run_dir, f'nn_dashboard_questions_all_validate_answers.csv'), snapshots_validate_labels, fmt='%1.4f', delimiter=",")
 
 
-# ================= TEST ===============
-print(f"loading test data")
-snapshots_test_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_test_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip", header=None)
-snapshots_test_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_test_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip", header=None   )
-# ========= Dashboard and current question
-print(f"computing dashboard")
-snapshots_test_embedded_dashboard = [
-    nn_dashboard_skill_all_questions(ac, probability_model, questions_skills, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1)
-    for ac in snapshots_test_embedded.to_numpy()]
-print(f"saving dashboard")
-np.savetxt(os.path.join(run_dir, f'nn_dashboard_questions_all_test.csv'), snapshots_test_embedded_dashboard, fmt='%1.4f', delimiter=",")
-# ========= answer / label for current question
-print(f"saving answers")
-np.savetxt(os.path.join(run_dir, f'nn_dashboard_questions_all_test_answers.csv'), snapshots_test_labels, fmt='%1.4f', delimiter=",")
+# # ================= TEST ===============
+# print(f"loading test data")
+# snapshots_test_embedded = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_test_embedded_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip", header=None)
+# snapshots_test_labels = pd.io.parsers.read_csv(os.path.join('outputs', f'snapshots_test_labels_t{model_history_length}_l{lstm_layer_size}_e{lstm_epochs}.csv.gz'), delimiter=",", compression="gzip", header=None   )
+# # ========= Dashboard and current question
+# print(f"computing dashboard")
+# snapshots_test_embedded_dashboard = [
+#     nn_dashboard_skill_all_questions(ac, probability_model, questions_skills, num_diffs=0, num_skills=diff_and_skill_num, diff_ind=-1)
+#     for ac in snapshots_test_embedded.to_numpy()]
+# print(f"saving dashboard")
+# np.savetxt(os.path.join(run_dir, f'nn_dashboard_questions_all_test.csv'), snapshots_test_embedded_dashboard, fmt='%1.4f', delimiter=",")
+# # ========= answer / label for current question
+# print(f"saving answers")
+# np.savetxt(os.path.join(run_dir, f'nn_dashboard_questions_all_test_answers.csv'), snapshots_test_labels, fmt='%1.4f', delimiter=",")
 
 
 
